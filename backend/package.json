@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "seed": "node seed.js",
+    "seed:reset": "node seed.js --reset",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
