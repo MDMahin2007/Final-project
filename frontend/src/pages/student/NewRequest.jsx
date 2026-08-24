@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api.js";
-import { AuthContext } from "../../context/AuthContext.jsx";
+import { AuthContext } from "../../context/authContext.js";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 
 const reasons = [

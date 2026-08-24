@@ -19,7 +19,7 @@ const ManageRequests = () => {
         setLoading(true);
         const response = await api.get("/clearance");
         setRequests(response.data.data);
-      } catch (err) {
+      } catch {
         setError("Unable to load clearance requests.");
       } finally {
         setLoading(false);
@@ -119,12 +119,14 @@ const ManageRequests = () => {
                     >
                       View
                     </Link>
-                    <Link
-                      className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600"
-                      to={`/admin/requests/${request._id}/review`}
-                    >
-                      Review
-                    </Link>
+                    {request.status === "Pending" && (
+                      <Link
+                        className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600"
+                        to={`/admin/requests/${request._id}/review`}
+                      >
+                        Review
+                      </Link>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext.jsx";
+import { AuthContext } from "../context/authContext.js";
 import {
   HiHome,
   HiOutlineDocumentText,

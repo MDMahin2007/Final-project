@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext.jsx";
+import { AuthContext } from "../context/authContext.js";
 
 const Register = () => {
   const { register } = useContext(AuthContext);
@@ -31,8 +31,8 @@ const Register = () => {
       setError("Please fill all fields.");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
     if (password !== confirmPassword) {

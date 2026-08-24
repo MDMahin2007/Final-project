@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import api from "../../services/api.js";
-import { AuthContext } from "../../context/AuthContext.jsx";
+import { AuthContext } from "../../context/authContext.js";
 import DashboardCard from "../../components/DashboardCard.jsx";
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
@@ -28,7 +28,7 @@ const StudentDashboard = () => {
           (item) => item.status === "Rejected",
         ).length;
         setStats({ total, pending, approved, rejected });
-      } catch (err) {
+      } catch {
         setError("Unable to load dashboard data.");
       } finally {
         setLoading(false);

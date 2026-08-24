@@ -12,21 +12,27 @@ export const registerUser = async (req, res, next) => {
     try {
         const { name, studentId, department, email, password } = req.body
 
-        if (!name || !email || !password) {
+        if (![name, studentId, department, email, password].every((value) => typeof value === 'string' && value.trim())) {
             return res.status(400).json({ success: false, message: 'Please fill all required fields' })
         }
 
-        const existingUser = await User.findOne({ email })
+        if (password.length < 8) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' })
+        }
+
+        const normalizedEmail = email.trim().toLowerCase()
+        const normalizedStudentId = studentId.trim()
+        const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { studentId: normalizedStudentId }] })
         if (existingUser) {
-            return res.status(400).json({ success: false, message: 'Email already registered' })
+            return res.status(409).json({ success: false, message: existingUser.email === normalizedEmail ? 'Email already registered' : 'Student ID already registered' })
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
         const user = await User.create({
-            name,
-            studentId: studentId || '',
-            department: department || '',
-            email,
+            name: name.trim(),
+            studentId: normalizedStudentId,
+            department: department.trim(),
+            email: normalizedEmail,
             password: hashedPassword,
             role: 'student',
         })
@@ -51,7 +57,7 @@ export const loginUser = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Email and password are required' })
         }
 
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ email: email.trim().toLowerCase() })
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid credentials' })
         }

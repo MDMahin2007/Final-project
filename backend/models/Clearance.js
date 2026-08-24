@@ -16,6 +16,8 @@ const clearanceSchema = new mongoose.Schema(
         },
         remarks: { type: String, default: '' },
         createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        reviewedAt: { type: Date, default: null },
     },
     { timestamps: true }
 )

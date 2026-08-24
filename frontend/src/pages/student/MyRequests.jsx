@@ -15,7 +15,7 @@ const MyRequests = () => {
         setLoading(true);
         const response = await api.get("/clearance/my");
         setRequests(response.data.data);
-      } catch (err) {
+      } catch {
         setError("Unable to load your clearance requests.");
       } finally {
         setLoading(false);

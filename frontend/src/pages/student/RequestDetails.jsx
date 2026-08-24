@@ -16,7 +16,7 @@ const RequestDetails = () => {
         setLoading(true);
         const response = await api.get(`/clearance/${id}`);
         setRequest(response.data.data);
-      } catch (err) {
+      } catch {
         setError("Unable to load request details.");
       } finally {
         setLoading(false);
@@ -118,6 +118,17 @@ const RequestDetails = () => {
                 {request.remarks || "No remarks yet."}
               </p>
             </div>
+            {request.reviewedAt && (
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Reviewed
+                </p>
+                <p className="mt-2 font-semibold text-slate-900">
+                  {new Date(request.reviewedAt).toLocaleString()}
+                  {request.reviewedBy?.name ? ` by ${request.reviewedBy.name}` : ""}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

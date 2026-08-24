@@ -20,7 +20,7 @@ const ReviewRequest = () => {
         const response = await api.get(`/clearance/${id}`);
         setRequest(response.data.data);
         setRemarks(response.data.data.remarks || "");
-      } catch (err) {
+      } catch {
         setError("Unable to load request details.");
       } finally {
         setLoading(false);
@@ -157,22 +157,28 @@ const ReviewRequest = () => {
             </div>
           )}
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => handleUpdate("Approved")}
-              className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Approve
-            </button>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => handleUpdate("Rejected")}
-              className="rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Reject
-            </button>
+            {request.status === "Pending" ? (
+              <>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => handleUpdate("Approved")}
+                  className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {saving ? "Saving..." : "Approve"}
+                </button>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => handleUpdate("Rejected")}
+                  className="rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Reject
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-slate-600">This request has already been reviewed and cannot be changed.</p>
+            )}
           </div>
         </div>
       </div>

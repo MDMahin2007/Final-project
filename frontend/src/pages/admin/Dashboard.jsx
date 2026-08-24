@@ -26,7 +26,7 @@ const AdminDashboard = () => {
         const students = new Set(data.map((item) => item.studentId)).size;
         setStats({ total, pending, approved, rejected, students });
         setRequests(data.slice(0, 5));
-      } catch (err) {
+      } catch {
         setError("Unable to load admin dashboard.");
       } finally {
         setLoading(false);
