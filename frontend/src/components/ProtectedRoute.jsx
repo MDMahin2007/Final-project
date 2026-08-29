@@ -1,12 +1,13 @@
 import { useContext } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { AuthContext } from "../context/authContext.js";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 const ProtectedRoute = ({ role }) => {
   const { user, loading } = useContext(AuthContext);
 
   if (loading) {
-    return <div className="p-6 text-center">Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (!user) {

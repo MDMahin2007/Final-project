@@ -21,6 +21,9 @@ export const registerUser = async (req, res, next) => {
         }
 
         const normalizedEmail = email.trim().toLowerCase()
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+            return res.status(400).json({ success: false, message: 'Please provide a valid email address' })
+        }
         const normalizedStudentId = studentId.trim()
         const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { studentId: normalizedStudentId }] })
         if (existingUser) {
@@ -41,6 +44,7 @@ export const registerUser = async (req, res, next) => {
             success: true,
             message: 'Registration successful',
             data: {
+                token: generateToken(user),
                 user: user.toJSON(),
             },
         })
@@ -57,7 +61,7 @@ export const loginUser = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Email and password are required' })
         }
 
-        const user = await User.findOne({ email: email.trim().toLowerCase() })
+        const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password')
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid credentials' })
         }

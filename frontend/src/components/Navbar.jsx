@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext.js";
 import {
   HiHome,
-  HiOutlineDocumentText,
   HiOutlineLogin,
   HiOutlineUser,
   HiOutlineClipboardList,
@@ -30,16 +29,6 @@ const Navbar = () => {
       to: "/student/dashboard",
       label: "Dashboard",
       icon: HiOutlinePresentationChartBar,
-    },
-    {
-      to: "/student/new-request",
-      label: "New Request",
-      icon: HiOutlineDocumentText,
-    },
-    {
-      to: "/student/requests",
-      label: "My Requests",
-      icon: HiOutlineClipboardList,
     },
   ];
 

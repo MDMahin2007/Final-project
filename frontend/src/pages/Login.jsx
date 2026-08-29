@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { AuthContext } from "../context/authContext.js";
 
 const Login = () => {
@@ -13,22 +14,23 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+
     if (!email || !password) {
-      setError("Email and password are required.");
+      const message = "Email and password are required.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     try {
       setLoading(true);
-      const user = await login(email, password);
-      navigate(
-        user.role === "admin" ? "/admin/dashboard" : "/student/dashboard",
-      );
+      const user = await login(email.trim(), password);
+      toast.success("Welcome back to ClearPath.");
+      navigate(user.role === "admin" ? "/admin/dashboard" : "/student/dashboard");
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Login failed. Please check your credentials.",
-      );
+      const message = err.response?.data?.message || "Login failed. Please check your credentials.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -36,53 +38,23 @@ const Login = () => {
 
   return (
     <div className="mx-auto max-w-md rounded-[2rem] bg-white p-8 shadow-sm">
-      <h1 className="text-2xl font-semibold text-slate-900">
-        Login to ClearPath
-      </h1>
-      <p className="mt-2 text-sm text-slate-600">
-        Enter your email and password to continue.
-      </p>
+      <h1 className="text-2xl font-semibold text-slate-900">Login to ClearPath</h1>
+      <p className="mt-2 text-sm text-slate-600">Enter your email and password to continue.</p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-700">
-            Email
-          </label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-primary"
-          />
+          <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email</label>
+          <input id="email" value={email} onChange={(event) => setEmail(event.target.value)} type="email" required autoComplete="email" className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-primary" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700">
-            Password
-          </label>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-primary"
-          />
+          <label htmlFor="password" className="block text-sm font-medium text-slate-700">Password</label>
+          <input id="password" value={password} onChange={(event) => setPassword(event.target.value)} type="password" required autoComplete="current-password" className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-primary" />
         </div>
-        {error && (
-          <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-        <button
-          type="submit"
-          className="w-full rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-sky-600"
-        >
+        {error && <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+        <button type="submit" disabled={loading} className="w-full rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70">
           {loading ? "Signing in..." : "Login"}
         </button>
       </form>
-      <p className="mt-5 text-sm text-slate-600">
-        Don’t have an account?{" "}
-        <Link to="/register" className="font-semibold text-primary">
-          Register
-        </Link>
-      </p>
+      <p className="mt-5 text-sm text-slate-600">Don&apos;t have an account? <Link to="/register" className="font-semibold text-primary">Register</Link></p>
     </div>
   );
 };

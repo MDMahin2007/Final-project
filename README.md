@@ -1,107 +1,98 @@
 # ClearPath
 
-## Smart Campus Clearance & Approval System
-Paperless • Fast • Transparent
-
-## Project Description
-ClearPath is a university campus application for digitizing the student clearance process. Students can register, submit clearance requests, and track approval status while administrators can review, approve, or reject requests with remarks.
-
-## Problem Statement
-University students often need to visit multiple departments for clearance. ClearPath centralizes this workflow online so students can submit requests and receive timely status updates without paper forms.
-
-## Solution
-A MERN stack application with role-based access: students create and monitor requests while admins manage and review them through a secure dashboard.
+ClearPath is a MERN smart campus clearance and approval system. Students submit one immutable clearance request; Library, Hostel, Accounts, and Department staff decisions are tracked independently by an administrator.
 
 ## Features
-- Student registration and login
-- Admin login
-- JWT authentication and role-based access
-- Student dashboard with live statistics
-- New clearance request form
-- My Requests list and detail view
-- Admin dashboard with overall statistics
-- Manage requests with search and filter
-- Review requests with approve/reject and remarks
-- Responsive UI with Tailwind CSS
-- Loading, error, and empty states
 
-## Technology Stack
-- Frontend: React, Vite, React Router DOM, Axios, Tailwind CSS, React Icons
-- Backend: Node.js, Express, MongoDB, Mongoose, JWT, bcryptjs, dotenv, cors
+- JWT authentication with bcrypt password hashing and student/admin roles.
+- A student dashboard that creates one request and shows a live department-by-department tracker.
+- An admin workspace with request search, pending/completed/rejected filters, expandable request details, and individual item approvals/rejections with optional remarks.
+- Automatic overall status: `completed` when all items are approved, `rejected` when any item is rejected, otherwise `pending`.
+- Responsive React/Tailwind UI, loading states, validation, centralized API errors, and toast notifications.
 
-## Project Structure
+## Structure
+
 ```
 backend/
-  config/db.js
-  controllers/
-  middleware/
-  models/
-  routes/
-  server.js
+  config/             MongoDB connection
+  controllers/        Authentication and clearance business logic
+  middleware/         JWT/role protection and error responses
+  models/             User and ClearanceRequest schemas
+  routes/             REST API routes
+  seed.js             Initial admin account seed script
 frontend/
-  src/
-    assets/
-    components/
-    context/
-    layouts/
-    pages/
-    services/
-    App.jsx
-    main.jsx
-    index.css
-  package.json
+  src/components/     Reusable UI pieces and clearance tracker
+  src/context/        Persisted authentication context
+  src/pages/          Public, student, and admin pages
+  src/services/       Axios client and JWT attachment
 ```
 
-## Database Design
-- `users` collection stores student/admin profiles and hashed passwords.
-- `clearances` collection stores clearance request details, status, remarks, and student references.
+## Setup
 
-## Authentication
-- JWT is used for protected APIs.
-- Passwords are hashed with bcrypt.
-- Role-based middleware prevents unauthorized access.
+1. Install MongoDB locally or create a MongoDB Atlas database.
+2. Copy `backend/.env.example` to `backend/.env` and set a real `MONGO_URI` and long `JWT_SECRET`.
+3. Copy `frontend/.env.example` to `frontend/.env`.
+4. Install dependencies and start each app in separate terminals:
 
-## User Roles
-- `student`: create requests, view own requests, view request details.
-- `admin`: view all requests, search/filter, review and update request status.
-
-## API Endpoints
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/clearance`
-- `GET /api/clearance/my`
-- `GET /api/clearance/:id`
-- `GET /api/clearance`
-- `PUT /api/clearance/:id`
-
-## Installation
-1. Clone the repository.
-2. Install backend dependencies: `cd backend && npm install`
-3. Install frontend dependencies: `cd ../frontend && npm install`
-
-## Environment Variables
-Create `backend/.env` with:
+```powershell
+cd backend
+npm install
+npm run dev
 ```
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+The API runs on `http://localhost:5000`; Vite normally runs on `http://localhost:5173`.
+
+## Environment variables
+
+Backend (`backend/.env`):
+
+```env
 PORT=5000
-MONGO_URI=YOUR_MONGODB_CONNECTION_STRING
-JWT_SECRET=YOUR_SECRET_KEY
+MONGO_URI=mongodb://127.0.0.1:27017/clearpath
+JWT_SECRET=replace_with_a_long_random_secret
+FRONTEND_URL=http://localhost:5173
+ADMIN_EMAIL=admin@clearpath.edu
+ADMIN_PASSWORD=change_this_before_running_in_production
 ```
-Create `frontend/.env` with:
-```
+
+Frontend (`frontend/.env`):
+
+```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-## How to Run
-- Start backend: `cd backend && npm run dev`
-- Start frontend: `cd frontend && npm run dev`
+## Create the admin account
 
-## Future Improvements
-- Add admin user management
-- Add export or print request slip
-- Add notifications and reminders
-- Improve dashboard analytics
+After configuring the backend environment, run:
 
-## Developer Information
-Developer: [Your Name]
-Department: [Your Department]
-Session: [Your Session]
+```powershell
+cd backend
+npm run seed
+```
+
+This creates the configured `ADMIN_EMAIL` account if it does not already exist. `npm run seed:reset` deletes all users and new clearance requests before recreating that account; use it only for local development.
+
+## API
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| POST | `/api/auth/register` | Public | Register a student and receive JWT |
+| POST | `/api/auth/login` | Public | Log in and receive JWT |
+| POST | `/api/clearance` | Student | Create the four default clearance items |
+| GET | `/api/clearance/my` | Student | Get the student’s request, or `null` |
+| GET | `/api/clearance?status=pending` | Admin | List requests, optionally filtered |
+| PATCH | `/api/clearance/:requestId/item/:itemId` | Admin | Update an item with `approved` or `rejected` and optional remarks |
+
+## Validation
+
+```powershell
+cd frontend
+npm run lint
+npm run build
+```

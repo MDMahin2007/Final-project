@@ -2,11 +2,19 @@ import mongoose from 'mongoose'
 
 const userSchema = new mongoose.Schema(
     {
-        name: { type: String, required: true, trim: true },
-        studentId: { type: String, trim: true },
+        name: { type: String, required: true, trim: true, minlength: 2, maxlength: 100 },
+        // Required for student accounts. `sparse` lets admin accounts omit it.
+        studentId: { type: String, trim: true, unique: true, sparse: true },
         department: { type: String, trim: true },
-        email: { type: String, required: true, unique: true, trim: true, lowercase: true },
-        password: { type: String, required: true },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            lowercase: true,
+            match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid email address'],
+        },
+        password: { type: String, required: true, minlength: 8, select: false },
         role: { type: String, enum: ['student', 'admin'], default: 'student' },
     },
     {

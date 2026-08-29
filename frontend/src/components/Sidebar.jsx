@@ -3,7 +3,6 @@ import { useContext } from "react";
 import { AuthContext } from "../context/authContext.js";
 import {
   HiOutlinePresentationChartBar,
-  HiOutlineDocumentText,
   HiOutlineClipboardList,
   HiOutlineUserCircle,
   HiOutlineLogout,
@@ -30,16 +29,6 @@ const Sidebar = ({ role }) => {
             to: "/student/dashboard",
             label: "Dashboard",
             icon: HiOutlinePresentationChartBar,
-          },
-          {
-            to: "/student/new-request",
-            label: "New Request",
-            icon: HiOutlineDocumentText,
-          },
-          {
-            to: "/student/requests",
-            label: "My Requests",
-            icon: HiOutlineClipboardList,
           },
         ];
 

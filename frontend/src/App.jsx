@@ -9,12 +9,8 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import StudentDashboard from "./pages/student/Dashboard.jsx";
 import NewRequest from "./pages/student/NewRequest.jsx";
-import MyRequests from "./pages/student/MyRequests.jsx";
-import RequestDetails from "./pages/student/RequestDetails.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import ManageRequests from "./pages/admin/ManageRequests.jsx";
-import ReviewRequest from "./pages/admin/ReviewRequest.jsx";
-import AdminRequestDetails from "./pages/admin/AdminRequestDetails.jsx";
 
 const App = () => {
   return (
@@ -30,8 +26,8 @@ const App = () => {
           <Route element={<StudentLayout />}>
             <Route path="student/dashboard" element={<StudentDashboard />} />
             <Route path="student/new-request" element={<NewRequest />} />
-            <Route path="student/requests" element={<MyRequests />} />
-            <Route path="student/requests/:id" element={<RequestDetails />} />
+            <Route path="student/requests" element={<Navigate to="/student/dashboard" replace />} />
+            <Route path="student/requests/:id" element={<Navigate to="/student/dashboard" replace />} />
           </Route>
         </Route>
 
@@ -39,14 +35,8 @@ const App = () => {
           <Route element={<AdminLayout />}>
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/requests" element={<ManageRequests />} />
-            <Route
-              path="admin/requests/:id"
-              element={<AdminRequestDetails />}
-            />
-            <Route
-              path="admin/requests/:id/review"
-              element={<ReviewRequest />}
-            />
+            <Route path="admin/requests/:id" element={<Navigate to="/admin/requests" replace />} />
+            <Route path="admin/requests/:id/review" element={<Navigate to="/admin/requests" replace />} />
           </Route>
         </Route>
 

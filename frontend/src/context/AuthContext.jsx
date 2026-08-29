@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import api from "../services/api.js";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./authContext.js";
@@ -20,18 +20,24 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(getStoredSession);
   const { user, token } = session;
 
-  const login = async (email, password) => {
-    const response = await api.post("/auth/login", { email, password });
-    const { token: authToken, user: userData } = response.data.data;
+  const saveSession = useCallback((authToken, userData) => {
     localStorage.setItem("clearpathToken", authToken);
     localStorage.setItem("clearpathUser", JSON.stringify(userData));
     setSession({ token: authToken, user: userData });
+  }, []);
+
+  const login = async (email, password) => {
+    const response = await api.post("/auth/login", { email, password });
+    const { token: authToken, user: userData } = response.data.data;
+    saveSession(authToken, userData);
     return userData;
   };
 
   const register = async (formData) => {
     const response = await api.post("/auth/register", formData);
-    return response.data;
+    const { token: authToken, user: userData } = response.data.data;
+    saveSession(authToken, userData);
+    return userData;
   };
 
   const logout = () => {
