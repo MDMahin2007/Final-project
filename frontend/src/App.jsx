@@ -33,6 +33,7 @@ const App = () => {
 
         <Route element={<ProtectedRoute role="admin" />}>
           <Route element={<AdminLayout />}>
+            <Route path="admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/requests" element={<ManageRequests />} />
             <Route path="admin/requests/:id" element={<Navigate to="/admin/requests" replace />} />
