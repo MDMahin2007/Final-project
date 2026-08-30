@@ -1,11 +1,13 @@
 import { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { AuthContext } from "../context/authContext.js";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminLogin = location.pathname === "/admin/login";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -38,7 +40,7 @@ const Login = () => {
 
   return (
     <div className="mx-auto max-w-md rounded-[2rem] bg-white p-8 shadow-sm">
-      <h1 className="text-2xl font-semibold text-slate-900">Login to ClearPath</h1>
+      <h1 className="text-2xl font-semibold text-slate-900">{isAdminLogin ? "Administrator login" : "Login to ClearPath"}</h1>
       <p className="mt-2 text-sm text-slate-600">Enter your email and password to continue.</p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>

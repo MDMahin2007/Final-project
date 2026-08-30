@@ -21,6 +21,7 @@ const Navbar = () => {
       icon: HiOutlinePresentationChartBar,
     },
     { to: "/login", label: "Login", icon: HiOutlineLogin },
+    { to: "/admin/login", label: "Admin Login", icon: HiOutlineLogin },
     { to: "/register", label: "Register", icon: HiOutlineUser },
   ];
 
