@@ -4,7 +4,7 @@ ClearPath is a MERN smart campus clearance and approval system. Students submit 
 
 ## Features
 
-- JWT authentication with bcrypt password hashing and student/admin roles.
+- JWT authentication with bcrypt password hashing and student/admin roles. Sessions are revalidated through `/api/auth/me` after a refresh.
 - A student dashboard that creates one request and shows a live department-by-department tracker.
 - An admin workspace with request search, pending/completed/rejected filters, expandable request details, and individual item approvals/rejections with optional remarks.
 - Automatic overall status: `completed` when all items are approved, `rejected` when any item is rejected, otherwise `pending`.
@@ -30,7 +30,7 @@ frontend/
 ## Setup
 
 1. Install MongoDB locally or create a MongoDB Atlas database.
-2. Copy `backend/.env.example` to `backend/.env` and set a real `MONGO_URI` and long `JWT_SECRET`.
+2. Copy `backend/.env.example` to `backend/.env` and set a real `MONGO_URI` and long `JWT_SECRET` (at least 32 characters).
 3. Copy `frontend/.env.example` to `frontend/.env`.
 4. Install dependencies and start each app in separate terminals:
 
@@ -55,10 +55,10 @@ Backend (`backend/.env`):
 ```env
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/clearpath
-JWT_SECRET=replace_with_a_long_random_secret
-FRONTEND_URL=http://localhost:5173
-ADMIN_EMAIL=admin@clearpath.edu
-ADMIN_PASSWORD=change_this_before_running_in_production
+JWT_SECRET=replace_with_a_random_secret_at_least_32_characters_long
+CLIENT_URL=http://localhost:5173
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=replace_with_a_secure_password
 ```
 
 Frontend (`frontend/.env`):
@@ -69,7 +69,7 @@ VITE_API_URL=http://localhost:5000/api
 
 ## Create the admin account
 
-After configuring the backend environment, run:
+After configuring the backend environment, including `ADMIN_EMAIL` and `ADMIN_PASSWORD`, run:
 
 ```powershell
 cd backend
@@ -84,15 +84,25 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | --- | --- | --- | --- |
 | POST | `/api/auth/register` | Public | Register a student and receive JWT |
 | POST | `/api/auth/login` | Public | Log in and receive JWT |
+| GET | `/api/auth/me` | Authenticated | Restore and validate the current session |
 | POST | `/api/clearance` | Student | Create the four default clearance items |
 | GET | `/api/clearance/my` | Student | Get the student’s request, or `null` |
 | GET | `/api/clearance?status=pending` | Admin | List requests, optionally filtered |
 | PATCH | `/api/clearance/:requestId/item/:itemId` | Admin | Update an item with `approved` or `rejected` and optional remarks |
 
-## Validation
+## Available checks
 
 ```powershell
 cd frontend
 npm run lint
 npm run build
 ```
+
+The backend has no test framework configured. Its production startup validates `JWT_SECRET`, connects to MongoDB before listening, and exits with a safe error if either requirement fails. Use `npm start` for a startup check or `npm run dev` during development.
+
+## Deployment notes
+
+- Deploy `frontend` as a Vite site on Vercel and set `VITE_API_URL` to the deployed backend URL ending in `/api`.
+- Deploy `backend` as a Node service on Render (or another Node host), using `npm start` and setting `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in the host environment.
+- Use a MongoDB Atlas connection string for `MONGO_URI`, restrict Atlas network access appropriately, and rotate any secret that was previously committed.
+- `frontend/vercel.json` provides the SPA fallback needed for direct navigation to React routes.

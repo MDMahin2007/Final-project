@@ -15,6 +15,9 @@ export const createClearance = async (req, res, next) => {
 
         res.status(201).json({ success: true, message: 'Clearance request created successfully', data: clearance })
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ success: false, message: 'You have already submitted a clearance request' })
+        }
         next(error)
     }
 }
@@ -52,12 +55,16 @@ export const getAllRequests = async (req, res, next) => {
 
 export const updateClearanceItem = async (req, res, next) => {
     try {
-        const { status, remarks } = req.body
+        const { status, remarks } = req.body || {}
         const { requestId, itemId } = req.params
         const cleanRemarks = typeof remarks === 'string' ? remarks.trim() : ''
 
         if (!['approved', 'rejected'].includes(status)) {
             return res.status(400).json({ success: false, message: 'Status must be approved or rejected' })
+        }
+
+        if (cleanRemarks.length > 1000) {
+            return res.status(400).json({ success: false, message: 'Remarks must be 1000 characters or fewer' })
         }
 
         const request = await ClearanceRequest.findById(requestId)

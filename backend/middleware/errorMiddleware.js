@@ -4,10 +4,13 @@ export const notFound = (req, res) => {
 
 export const errorHandler = (err, req, res, next) => {
     console.error(err.stack)
-    let statusCode = err.status || 500
-    let message = err.message || 'Server error'
+    let statusCode = err.status || err.statusCode || 500
+    let message = statusCode >= 500 ? 'Server error' : (err.message || 'Request failed')
 
-    if (err.name === 'CastError') {
+    if (err instanceof SyntaxError && 'body' in err) {
+        statusCode = 400
+        message = 'Malformed JSON request'
+    } else if (err.name === 'CastError') {
         statusCode = 400
         message = 'Invalid resource ID'
     } else if (err.code === 11000) {

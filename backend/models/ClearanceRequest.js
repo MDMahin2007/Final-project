@@ -6,7 +6,7 @@ const clearanceItemSchema = new mongoose.Schema(
     {
         department: { type: String, enum: CLEARANCE_DEPARTMENTS, required: true },
         status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-        remarks: { type: String, trim: true, default: '' },
+        remarks: { type: String, trim: true, maxlength: 1000, default: '' },
         updatedAt: { type: Date, default: Date.now },
     },
     { _id: true }

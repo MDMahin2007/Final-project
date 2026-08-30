@@ -18,8 +18,11 @@ const seedAdmin = async () => {
             console.log('ClearPath users and clearance requests removed.')
         }
 
-        const email = process.env.ADMIN_EMAIL || 'admin@clearpath.edu'
-        const password = process.env.ADMIN_PASSWORD || 'Admin123!'
+        const email = process.env.ADMIN_EMAIL?.trim().toLowerCase()
+        const password = process.env.ADMIN_PASSWORD
+        if (!email || !password || password.length < 8) {
+            throw new Error('ADMIN_EMAIL and an ADMIN_PASSWORD of at least 8 characters are required')
+        }
         const existingAdmin = await User.findOne({ email })
 
         if (!existingAdmin) {

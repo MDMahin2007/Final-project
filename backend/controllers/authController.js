@@ -84,3 +84,7 @@ export const loginUser = async (req, res, next) => {
         next(error)
     }
 }
+
+export const getMe = async (req, res) => {
+    res.json({ success: true, data: { user: req.user.toJSON() } })
+}
