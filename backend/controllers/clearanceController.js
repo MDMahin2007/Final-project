@@ -32,6 +32,38 @@ export const getMyRequest = async (req, res, next) => {
     }
 }
 
+export const resubmitClearance = async (req, res, next) => {
+    try {
+        const request = await ClearanceRequest.findOne({ student: req.user._id })
+            .populate('student', 'name email studentId department')
+
+        if (!request) {
+            return res.status(404).json({ success: false, message: 'No clearance request found' })
+        }
+
+        if (request.overallStatus !== 'rejected') {
+            return res.status(400).json({ success: false, message: 'Only a rejected request can be resubmitted' })
+        }
+
+        request.items.forEach((item) => {
+            if (item.status === 'rejected') {
+                item.status = 'pending'
+                item.remarks = ''
+                item.updatedAt = new Date()
+            }
+        })
+
+        await request.save()
+        res.json({
+            success: true,
+            message: 'Rejected departments were reset to pending. Approved items were kept.',
+            data: request,
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const getAllRequests = async (req, res, next) => {
     try {
         const { status } = req.query

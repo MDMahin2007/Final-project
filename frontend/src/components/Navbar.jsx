@@ -31,6 +31,11 @@ const Navbar = () => {
       label: "Dashboard",
       icon: HiOutlinePresentationChartBar,
     },
+    {
+      to: "/student/certificate",
+      label: "Certificate",
+      icon: HiOutlineClipboardList,
+    },
   ];
 
   const adminLinks = [
@@ -69,7 +74,7 @@ const Navbar = () => {
           Menu
         </button>
         <div
-          className={`flex flex-col gap-2 md:flex-row md:items-center ${open ? "block" : "hidden"} md:block`}
+          className={`${open ? "flex" : "hidden"} flex-col gap-2 md:flex md:flex-row md:items-center`}
         >
           {links.map((item) => {
             const Icon = item.icon;

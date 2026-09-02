@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const features = [
   {
@@ -21,6 +22,13 @@ const features = [
 ];
 
 const Home = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash !== "#features") return;
+    document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+  }, [location]);
+
   return (
     <div className="space-y-16">
       <section className="rounded-[2rem] bg-white px-6 py-14 shadow-sm sm:px-10">
@@ -74,7 +82,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="grid gap-10 lg:grid-cols-2">
+      <section id="features" className="grid scroll-mt-24 gap-10 lg:grid-cols-2">
         <div className="rounded-[2rem] bg-white p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-slate-900">
             How it works

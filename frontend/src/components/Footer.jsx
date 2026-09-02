@@ -4,7 +4,7 @@ const Footer = () => {
       <div className="mx-auto max-w-7xl space-y-4 text-center">
         <div className="text-lg font-semibold text-slate-900">ClearPath</div>
         <p>Smart Campus Clearance & Approval System</p>
-        <p>Developer • Department • Session</p>
+        <p>Students · Library · Hostel · Accounts · Department</p>
         <p>© 2026 ClearPath</p>
       </div>
     </footer>

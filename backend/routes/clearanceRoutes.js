@@ -2,6 +2,7 @@ import express from 'express'
 import {
     createClearance,
     getMyRequest,
+    resubmitClearance,
     getAllRequests,
     updateClearanceItem,
 } from '../controllers/clearanceController.js'
@@ -11,6 +12,7 @@ const router = express.Router()
 
 router.post('/', protect, authorize(['student']), createClearance)
 router.get('/my', protect, authorize(['student']), getMyRequest)
+router.post('/my/resubmit', protect, authorize(['student']), resubmitClearance)
 router.get('/', protect, authorize(['admin']), getAllRequests)
 router.patch('/:requestId/item/:itemId', protect, authorize(['admin']), updateClearanceItem)
 

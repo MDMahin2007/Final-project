@@ -30,6 +30,10 @@ const AdminDashboard = () => {
   const pending = requests.filter((request) => request.overallStatus === "pending").length;
   const completed = requests.filter((request) => request.overallStatus === "completed").length;
   const rejected = requests.filter((request) => request.overallStatus === "rejected").length;
+  const departmentPending = ["Library", "Hostel", "Accounts", "Department"].map((department) => ({
+    department,
+    count: requests.filter((request) => request.items?.some((item) => item.department === department && item.status === "pending")).length,
+  }));
 
   return (
     <div className="space-y-6">
@@ -47,6 +51,14 @@ const AdminDashboard = () => {
         <DashboardCard title="Completed" value={completed} />
         <DashboardCard title="Rejected" value={rejected} />
       </div>
+      <section className="rounded-[2rem] bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-slate-900">Pending by department</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {departmentPending.map((item) => (
+            <DashboardCard key={item.department} title={item.department} value={item.count} />
+          ))}
+        </div>
+      </section>
       <section className="rounded-[2rem] bg-white p-6 shadow-sm">
         <h2 className="text-xl font-semibold text-slate-900">Latest requests</h2>
         {requests.length === 0 ? <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No student requests have been submitted yet.</p> : (

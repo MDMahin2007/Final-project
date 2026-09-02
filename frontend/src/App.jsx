@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import GuestRoute from "./components/GuestRoute.jsx";
 import PublicLayout from "./layouts/PublicLayout.jsx";
 import StudentLayout from "./layouts/StudentLayout.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
@@ -9,6 +10,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import StudentDashboard from "./pages/student/Dashboard.jsx";
 import NewRequest from "./pages/student/NewRequest.jsx";
+import Certificate from "./pages/student/Certificate.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import ManageRequests from "./pages/admin/ManageRequests.jsx";
 
@@ -18,14 +20,17 @@ const App = () => {
       <Routes>
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="admin/login" element={<Login />} />
-          <Route path="register" element={<Register />} />
+          <Route element={<GuestRoute />}>
+            <Route path="login" element={<Login />} />
+            <Route path="admin/login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+          </Route>
         </Route>
 
         <Route element={<ProtectedRoute role="student" />}>
           <Route element={<StudentLayout />}>
             <Route path="student/dashboard" element={<StudentDashboard />} />
+            <Route path="student/certificate" element={<Certificate />} />
             <Route path="student/new-request" element={<NewRequest />} />
             <Route path="student/requests" element={<Navigate to="/student/dashboard" replace />} />
             <Route path="student/requests/:id" element={<Navigate to="/student/dashboard" replace />} />

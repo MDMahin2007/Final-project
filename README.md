@@ -8,6 +8,8 @@ ClearPath is a MERN smart campus clearance and approval system. Students submit 
 - A student dashboard that creates one request and shows a live department-by-department tracker.
 - An admin workspace with request search, pending/completed/rejected filters, expandable request details, and individual item approvals/rejections with optional remarks.
 - Automatic overall status: `completed` when all items are approved, `rejected` when any item is rejected, otherwise `pending`.
+- Students can resubmit only the rejected departments; already approved items stay approved.
+- A printable clearance certificate is available after every department has approved the request.
 - Responsive React/Tailwind UI, loading states, validation, centralized API errors, and toast notifications.
 
 ## Structure
@@ -64,8 +66,10 @@ ADMIN_PASSWORD=replace_with_a_secure_password
 Frontend (`frontend/.env`):
 
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=/api
 ```
+
+Local development uses Vite's `/api` proxy to `http://localhost:5000`. For production, set `VITE_API_URL` to the deployed backend URL ending in `/api`.
 
 ## Create the admin account
 
@@ -76,7 +80,7 @@ cd backend
 npm run seed
 ```
 
-This creates the configured `ADMIN_EMAIL` account if it does not already exist. `npm run seed:reset` deletes all users and new clearance requests before recreating that account; use it only for local development.
+This creates the configured `ADMIN_EMAIL` account if it does not already exist. For local development the example values are `admin@example.com` / `AdminPass123`. `npm run seed:reset` deletes all users and clearance requests before recreating that account; use it only for local development.
 
 ## API
 
@@ -87,6 +91,8 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | GET | `/api/auth/me` | Authenticated | Restore and validate the current session |
 | POST | `/api/clearance` | Student | Create the four default clearance items |
 | GET | `/api/clearance/my` | Student | Get the student’s request, or `null` |
+| POST | `/api/clearance/my/resubmit` | Student | Reset rejected items to pending |
+| GET | `/api/health` | Public | Confirm the API is running |
 | GET | `/api/clearance?status=pending` | Admin | List requests, optionally filtered |
 | PATCH | `/api/clearance/:requestId/item/:itemId` | Admin | Update an item with `approved` or `rejected` and optional remarks |
 

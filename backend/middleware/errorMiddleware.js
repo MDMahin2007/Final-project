@@ -2,7 +2,7 @@ export const notFound = (req, res) => {
     res.status(404).json({ success: false, message: 'Route not found' })
 }
 
-export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, _next) => {
     console.error(err.stack)
     let statusCode = err.status || err.statusCode || 500
     let message = statusCode >= 500 ? 'Server error' : (err.message || 'Request failed')

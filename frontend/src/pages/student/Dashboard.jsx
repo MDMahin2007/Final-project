@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { HiCheckCircle, HiDocumentAdd, HiExclamationCircle } from "react-icons/hi";
 import api from "../../services/api.js";
@@ -31,6 +32,21 @@ const StudentDashboard = () => {
     return () => window.clearTimeout(timeoutId);
   }, []);
 
+  const resubmitRejected = async () => {
+    try {
+      setSubmitting(true);
+      const response = await api.post("/clearance/my/resubmit");
+      setRequest(response.data.data);
+      toast.success(response.data.message);
+    } catch (err) {
+      const message = err.response?.data?.message || "Unable to resubmit rejected departments.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const applyForClearance = async () => {
     try {
       setSubmitting(true);
@@ -59,6 +75,11 @@ const StudentDashboard = () => {
           </div>
           {request && <StatusBadge status={request.overallStatus} />}
         </div>
+        <dl className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl bg-slate-50 p-4"><dt className="text-xs uppercase tracking-wide text-slate-500">Student ID</dt><dd className="mt-1 font-semibold text-slate-900">{user?.studentId || "—"}</dd></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><dt className="text-xs uppercase tracking-wide text-slate-500">Department</dt><dd className="mt-1 font-semibold text-slate-900">{user?.department || "—"}</dd></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><dt className="text-xs uppercase tracking-wide text-slate-500">Email</dt><dd className="mt-1 font-semibold text-slate-900">{user?.email || "—"}</dd></div>
+        </dl>
       </section>
 
       {error && <div className="rounded-3xl bg-red-50 p-5 text-sm text-red-700">{error}</div>}
@@ -80,6 +101,16 @@ const StudentDashboard = () => {
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">{request.overallStatus === "completed" ? "Clearance completed" : request.overallStatus === "rejected" ? "Clearance needs attention" : "Clearance is under review"}</h2>
                 <p className="mt-1 text-sm text-slate-600">Submitted {new Date(request.createdAt).toLocaleDateString()}. Each department will update its item separately.</p>
+                {request.overallStatus === "completed" && (
+                  <Link to="/student/certificate" className="mt-4 inline-flex rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                    View certificate
+                  </Link>
+                )}
+                {request.overallStatus === "rejected" && (
+                  <button type="button" onClick={resubmitRejected} disabled={submitting} className="mt-4 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600 disabled:opacity-70">
+                    {submitting ? "Resubmitting..." : "Resubmit rejected departments"}
+                  </button>
+                )}
               </div>
             </div>
           </section>

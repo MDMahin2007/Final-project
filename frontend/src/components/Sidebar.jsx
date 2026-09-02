@@ -30,6 +30,11 @@ const Sidebar = ({ role }) => {
             label: "Dashboard",
             icon: HiOutlinePresentationChartBar,
           },
+          {
+            to: "/student/certificate",
+            label: "Certificate",
+            icon: HiOutlineClipboardList,
+          },
         ];
 
   return (

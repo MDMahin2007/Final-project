@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { AuthContext } from "../context/authContext.js";
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { login, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const isAdminLogin = location.pathname === "/admin/login";
@@ -27,6 +27,13 @@ const Login = () => {
     try {
       setLoading(true);
       const user = await login(email.trim(), password);
+      if (isAdminLogin && user.role !== "admin") {
+        logout();
+        const message = "This portal is for administrators only.";
+        setError(message);
+        toast.error(message);
+        return;
+      }
       toast.success("Welcome back to ClearPath.");
       navigate(user.role === "admin" ? "/admin/dashboard" : "/student/dashboard");
     } catch (err) {
@@ -56,7 +63,11 @@ const Login = () => {
           {loading ? "Signing in..." : "Login"}
         </button>
       </form>
-      <p className="mt-5 text-sm text-slate-600">Don&apos;t have an account? <Link to="/register" className="font-semibold text-primary">Register</Link></p>
+      {isAdminLogin ? (
+        <p className="mt-5 text-sm text-slate-600">Student? <Link to="/login" className="font-semibold text-primary">Use the student login</Link></p>
+      ) : (
+        <p className="mt-5 text-sm text-slate-600">Don&apos;t have an account? <Link to="/register" className="font-semibold text-primary">Register</Link></p>
+      )}
     </div>
   );
 };

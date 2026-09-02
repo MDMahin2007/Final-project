@@ -32,6 +32,10 @@ app.get('/', (req, res) => {
     res.json({ success: true, message: 'ClearPath API is running' })
 })
 
+app.get('/api/health', (req, res) => {
+    res.json({ success: true, message: 'ClearPath API is healthy' })
+})
+
 app.use('/api/auth', authRoutes)
 app.use('/api/clearance', clearanceRoutes)
 
