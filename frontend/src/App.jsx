@@ -33,19 +33,34 @@ const App = () => {
             <Route path="student/dashboard" element={<StudentDashboard />} />
             <Route path="student/certificate" element={<Certificate />} />
             <Route path="student/new-request" element={<NewRequest />} />
-            <Route path="student/requests" element={<Navigate to="/student/dashboard" replace />} />
-            <Route path="student/requests/:id" element={<Navigate to="/student/dashboard" replace />} />
+            <Route
+              path="student/requests"
+              element={<Navigate to="/student/dashboard" replace />}
+            />
+            <Route
+              path="student/requests/:id"
+              element={<Navigate to="/student/dashboard" replace />}
+            />
           </Route>
         </Route>
 
         <Route element={<ProtectedRoute role="admin" />}>
           <Route element={<AdminLayout />}>
-            <Route path="admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route
+              path="admin"
+              element={<Navigate to="/admin/dashboard" replace />}
+            />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/requests" element={<ManageRequests />} />
             <Route path="admin/register" element={<AdminRegister />} />
-            <Route path="admin/requests/:id" element={<Navigate to="/admin/requests" replace />} />
-            <Route path="admin/requests/:id/review" element={<Navigate to="/admin/requests" replace />} />
+            <Route
+              path="admin/requests/:id"
+              element={<Navigate to="/admin/requests" replace />}
+            />
+            <Route
+              path="admin/requests/:id/review"
+              element={<Navigate to="/admin/requests" replace />}
+            />
           </Route>
         </Route>
 
