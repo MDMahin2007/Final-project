@@ -7,6 +7,7 @@ import {
   HiOutlineUser,
   HiOutlineClipboardList,
   HiOutlinePresentationChartBar,
+  HiOutlineUserAdd,
 } from "react-icons/hi";
 
 const Navbar = () => {
@@ -48,6 +49,11 @@ const Navbar = () => {
       to: "/admin/requests",
       label: "Manage Requests",
       icon: HiOutlineClipboardList,
+    },
+    {
+      to: "/admin/register",
+      label: "Register Admin",
+      icon: HiOutlineUserAdd,
     },
   ];
 

@@ -87,6 +87,7 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | Method | Endpoint | Access | Purpose |
 | --- | --- | --- | --- |
 | POST | `/api/auth/register` | Public | Register a student and receive JWT |
+| POST | `/api/auth/register-admin` | Admin | Register another administrator and receive JWT |
 | POST | `/api/auth/login` | Public | Log in and receive JWT |
 | GET | `/api/auth/me` | Authenticated | Restore and validate the current session |
 | POST | `/api/clearance` | Student | Create the four default clearance items |
@@ -95,6 +96,8 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | GET | `/api/health` | Public | Confirm the API is running |
 | GET | `/api/clearance?status=pending` | Admin | List requests, optionally filtered |
 | PATCH | `/api/clearance/:requestId/item/:itemId` | Admin | Update an item with `approved` or `rejected` and optional remarks |
+
+The first administrator must be created with `npm run seed`. After signing in, an administrator can create additional administrator accounts at `/admin/register`.
 
 ## Available checks
 

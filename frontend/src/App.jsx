@@ -13,6 +13,7 @@ import NewRequest from "./pages/student/NewRequest.jsx";
 import Certificate from "./pages/student/Certificate.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import ManageRequests from "./pages/admin/ManageRequests.jsx";
+import AdminRegister from "./pages/admin/Register.jsx";
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
             <Route path="admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/requests" element={<ManageRequests />} />
+            <Route path="admin/register" element={<AdminRegister />} />
             <Route path="admin/requests/:id" element={<Navigate to="/admin/requests" replace />} />
             <Route path="admin/requests/:id/review" element={<Navigate to="/admin/requests" replace />} />
           </Route>

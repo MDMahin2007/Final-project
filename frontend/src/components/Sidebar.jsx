@@ -5,6 +5,7 @@ import {
   HiOutlinePresentationChartBar,
   HiOutlineClipboardList,
   HiOutlineUserCircle,
+  HiOutlineUserAdd,
   HiOutlineLogout,
 } from "react-icons/hi";
 
@@ -22,6 +23,11 @@ const Sidebar = ({ role }) => {
             to: "/admin/requests",
             label: "Manage Requests",
             icon: HiOutlineClipboardList,
+          },
+          {
+            to: "/admin/register",
+            label: "Register Admin",
+            icon: HiOutlineUserAdd,
           },
         ]
       : [

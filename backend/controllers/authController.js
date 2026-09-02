@@ -8,6 +8,21 @@ const generateToken = (user) => {
     })
 }
 
+const normalizeEmail = (email) => (typeof email === 'string' ? email.trim().toLowerCase() : '')
+
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+const sendAuthResponse = (res, statusCode, message, user) => {
+    res.status(statusCode).json({
+        success: true,
+        message,
+        data: {
+            token: generateToken(user),
+            user: user.toJSON(),
+        },
+    })
+}
+
 export const registerUser = async (req, res, next) => {
     try {
         const { name, studentId, department, email, password } = req.body
@@ -40,14 +55,46 @@ export const registerUser = async (req, res, next) => {
             role: 'student',
         })
 
-        res.status(201).json({
-            success: true,
-            message: 'Registration successful',
-            data: {
-                token: generateToken(user),
-                user: user.toJSON(),
-            },
+        sendAuthResponse(res, 201, 'Registration successful', user)
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const registerAdmin = async (req, res, next) => {
+    try {
+        const { name, email, password } = req.body
+
+        if (![name, email, password].every((value) => typeof value === 'string' && value.trim())) {
+            return res.status(400).json({ success: false, message: 'Please fill all required fields' })
+        }
+
+        if (name.trim().length < 2) {
+            return res.status(400).json({ success: false, message: 'Name must be at least 2 characters' })
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' })
+        }
+
+        const normalizedEmail = normalizeEmail(email)
+        if (!isValidEmail(normalizedEmail)) {
+            return res.status(400).json({ success: false, message: 'Please provide a valid email address' })
+        }
+
+        const existingUser = await User.findOne({ email: normalizedEmail })
+        if (existingUser) {
+            return res.status(409).json({ success: false, message: 'Email already registered' })
+        }
+
+        const user = await User.create({
+            name: name.trim(),
+            email: normalizedEmail,
+            password: await bcrypt.hash(password, 10),
+            role: 'admin',
         })
+
+        sendAuthResponse(res, 201, 'Admin registration successful', user)
     } catch (error) {
         next(error)
     }
@@ -71,15 +118,7 @@ export const loginUser = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Invalid credentials' })
         }
 
-        const token = generateToken(user)
-        res.json({
-            success: true,
-            message: 'Login successful',
-            data: {
-                token,
-                user: user.toJSON(),
-            },
-        })
+        sendAuthResponse(res, 200, 'Login successful', user)
     } catch (error) {
         next(error)
     }

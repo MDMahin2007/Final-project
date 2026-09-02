@@ -78,6 +78,13 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
+  const registerAdmin = async (formData) => {
+    const response = await api.post("/auth/register-admin", formData);
+    const { token: authToken, user: userData } = response.data.data;
+    saveSession(authToken, userData);
+    return userData;
+  };
+
   const logout = () => {
     clearSession();
     navigate("/login");
@@ -85,7 +92,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, login, logout, register }}
+      value={{ user, token, loading, login, logout, register, registerAdmin }}
     >
       {children}
     </AuthContext.Provider>
