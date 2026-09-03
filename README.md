@@ -14,7 +14,6 @@ ClearPath is a MERN smart campus clearance and approval system. Students submit 
 
 ## Structure
 
-```
 backend/
   config/             MongoDB connection
   controllers/        Authentication and clearance business logic
@@ -27,12 +26,11 @@ frontend/
   src/context/        Persisted authentication context
   src/pages/          Public, student, and admin pages
   src/services/       Axios client and JWT attachment
-```
 
 ## Setup
 
 1. Install MongoDB locally or create a MongoDB Atlas database.
-2. Copy `backend/.env.example` to `backend/.env` and set a real `MONGO_URI` and long `JWT_SECRET` (at least 32 characters).
+2. Copy `backend/.env.example` to `backend/.env` and set a real `MONGO_URI` and long `JWT_SECRET` (at least 32 characters). If using separate MongoDB values, set `MONGO_USER`, `MONGO_PASSWORD`, `MONGO_HOST`, `DB_NAME`, and optionally `MONGO_AUTH_SOURCE` instead.
 3. Copy `frontend/.env.example` to `frontend/.env`.
 4. Install dependencies and start each app in separate terminals:
 
@@ -57,6 +55,12 @@ Backend (`backend/.env`):
 ```env
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/clearpath
+# Or use component-based values; passwords are URI-encoded by the backend.
+# MONGO_USER=
+# MONGO_PASSWORD=
+# MONGO_HOST=127.0.0.1:27017
+# DB_NAME=clearpath
+# MONGO_AUTH_SOURCE=admin
 JWT_SECRET=replace_with_a_random_secret_at_least_32_characters_long
 CLIENT_URL=http://localhost:5173
 ADMIN_EMAIL=admin@example.com
@@ -96,6 +100,8 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | GET | `/api/health` | Public | Confirm the API is running |
 | GET | `/api/clearance?status=pending` | Admin | List requests, optionally filtered |
 | PATCH | `/api/clearance/:requestId/item/:itemId` | Admin | Update an item with `approved` or `rejected` and optional remarks |
+
+`/api/login` and `/api/auth/status` are also available as compatibility aliases for clients using the older authentication paths.
 
 The first administrator must be created with `npm run seed`. After signing in, an administrator can create additional administrator accounts at `/admin/register`.
 

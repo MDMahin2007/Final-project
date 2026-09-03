@@ -3,6 +3,8 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
+import { getMe, loginUser } from './controllers/authController.js'
+import { protect } from './middleware/authMiddleware.js'
 import clearanceRoutes from './routes/clearanceRoutes.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 
@@ -37,6 +39,8 @@ app.get('/api/health', (req, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.post('/api/login', loginUser)
+app.get('/api/auth/status', protect, getMe)
 app.use('/api/clearance', clearanceRoutes)
 
 app.use(notFound)
