@@ -26,7 +26,7 @@ const App = () => {
             <Route path="admin/login" element={<Login />} />
             <Route path="register" element={<Register />} />
           </Route>
-          <Route path="admin/register" element={<AdminRegister />} />
+          <Route path="admin/register" element={<Register />} />
         </Route>
 
         <Route element={<ProtectedRoute role="student" />}>
