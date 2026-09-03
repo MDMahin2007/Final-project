@@ -26,6 +26,7 @@ const App = () => {
             <Route path="admin/login" element={<Login />} />
             <Route path="register" element={<Register />} />
           </Route>
+          <Route path="admin/register" element={<AdminRegister />} />
         </Route>
 
         <Route element={<ProtectedRoute role="student" />}>
@@ -52,7 +53,7 @@ const App = () => {
             />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/requests" element={<ManageRequests />} />
-            <Route path="admin/register" element={<AdminRegister />} />
+            <Route path="admin/add-admin" element={<AdminRegister />} />
             <Route
               path="admin/requests/:id"
               element={<Navigate to="/admin/requests" replace />}

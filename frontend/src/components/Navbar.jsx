@@ -24,6 +24,7 @@ const Navbar = () => {
     { to: "/login", label: "Login", icon: HiOutlineLogin },
     { to: "/admin/login", label: "Admin Login", icon: HiOutlineLogin },
     { to: "/register", label: "Register", icon: HiOutlineUser },
+    { to: "/admin/register", label: "Admin Register", icon: HiOutlineUserAdd },
   ];
 
   const studentLinks = [
@@ -51,7 +52,7 @@ const Navbar = () => {
       icon: HiOutlineClipboardList,
     },
     {
-      to: "/admin/register",
+      to: "/admin/add-admin",
       label: "Register Admin",
       icon: HiOutlineUserAdd,
     },

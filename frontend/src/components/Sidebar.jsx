@@ -25,7 +25,7 @@ const Sidebar = ({ role }) => {
             icon: HiOutlineClipboardList,
           },
           {
-            to: "/admin/register",
+            to: "/admin/add-admin",
             label: "Register Admin",
             icon: HiOutlineUserAdd,
           },

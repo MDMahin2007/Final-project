@@ -91,7 +91,7 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | Method | Endpoint | Access | Purpose |
 | --- | --- | --- | --- |
 | POST | `/api/auth/register` | Public | Register a student and receive JWT |
-| POST | `/api/auth/register-admin` | Admin | Register another administrator and receive JWT |
+| POST | `/api/auth/register-admin` | Admin | Register another administrator without replacing the current session |
 | POST | `/api/auth/login` | Public | Log in and receive JWT |
 | GET | `/api/auth/me` | Authenticated | Restore and validate the current session |
 | POST | `/api/clearance` | Student | Create the four default clearance items |

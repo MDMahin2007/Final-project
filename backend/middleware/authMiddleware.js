@@ -30,3 +30,23 @@ export const authorize = (roles = []) => {
         next()
     }
 }
+
+export const optionalProtect = async (req, res, next) => {
+    const authHeader = req.headers.authorization || ''
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null
+
+    if (!token) {
+        return next()
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const user = await User.findById(decoded.userId)
+        if (user) {
+            req.user = user
+        }
+    } catch {
+        // Proceed without req.user if token is invalid or expired
+    }
+    next()
+}

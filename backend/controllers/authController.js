@@ -63,10 +63,22 @@ export const registerUser = async (req, res, next) => {
 
 export const registerAdmin = async (req, res, next) => {
     try {
-        const { name, email, password } = req.body
+        const { name, email, password, adminSecretKey } = req.body
+
+        const isAuthorizedAdmin = req.user && req.user.role === 'admin'
 
         if (![name, email, password].every((value) => typeof value === 'string' && value.trim())) {
             return res.status(400).json({ success: false, message: 'Please fill all required fields' })
+        }
+
+        if (!isAuthorizedAdmin) {
+            if (!adminSecretKey || typeof adminSecretKey !== 'string' || !adminSecretKey.trim()) {
+                return res.status(400).json({ success: false, message: 'Admin security key is required' })
+            }
+            const expectedKey = process.env.ADMIN_SECRET_KEY || 'ClearPathAdmin2026!'
+            if (adminSecretKey.trim() !== expectedKey.trim()) {
+                return res.status(403).json({ success: false, message: 'Invalid admin security key' })
+            }
         }
 
         if (name.trim().length < 2) {
@@ -93,6 +105,14 @@ export const registerAdmin = async (req, res, next) => {
             password: await bcrypt.hash(password, 10),
             role: 'admin',
         })
+
+        if (isAuthorizedAdmin) {
+            return res.status(201).json({
+                success: true,
+                message: 'Admin registration successful',
+                data: { user: user.toJSON() },
+            })
+        }
 
         sendAuthResponse(res, 201, 'Admin registration successful', user)
     } catch (error) {

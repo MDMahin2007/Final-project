@@ -18,7 +18,9 @@ const getStoredSession = () => {
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const [session, setSession] = useState(getStoredSession);
-  const [loading, setLoading] = useState(() => Boolean(getStoredSession().token));
+  const [loading, setLoading] = useState(() =>
+    Boolean(getStoredSession().token),
+  );
   const { user, token } = session;
 
   const saveSession = useCallback((authToken, userData) => {
@@ -61,7 +63,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     window.addEventListener("clearpath:unauthorized", clearSession);
-    return () => window.removeEventListener("clearpath:unauthorized", clearSession);
+    return () =>
+      window.removeEventListener("clearpath:unauthorized", clearSession);
   }, [clearSession]);
 
   const login = async (email, password) => {
@@ -80,9 +83,12 @@ export const AuthProvider = ({ children }) => {
 
   const registerAdmin = async (formData) => {
     const response = await api.post("/auth/register-admin", formData);
-    const { token: authToken, user: userData } = response.data.data;
-    saveSession(authToken, userData);
-    return userData;
+    const { token: authToken, user: userData } = response.data.data || {};
+    if (authToken && userData) {
+      saveSession(authToken, userData);
+      return userData;
+    }
+    return response.data.data.user;
   };
 
   const logout = () => {

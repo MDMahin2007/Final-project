@@ -64,9 +64,47 @@ const Login = () => {
         </button>
       </form>
       {isAdminLogin ? (
-        <p className="mt-5 text-sm text-slate-600">Student? <Link to="/login" className="font-semibold text-primary">Use the student login</Link></p>
+        <div className="mt-5 space-y-2 text-sm text-slate-600">
+          <p>
+            Need an administrator account?{" "}
+            <Link
+              to="/admin/register"
+              className="font-semibold text-primary hover:underline"
+            >
+              Register as Admin
+            </Link>
+          </p>
+          <p>
+            Student?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-slate-700 hover:underline"
+            >
+              Use the student login
+            </Link>
+          </p>
+        </div>
       ) : (
-        <p className="mt-5 text-sm text-slate-600">Don&apos;t have an account? <Link to="/register" className="font-semibold text-primary">Register</Link></p>
+        <div className="mt-5 space-y-2 text-sm text-slate-600">
+          <p>
+            Don&apos;t have an account?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-primary hover:underline"
+            >
+              Register
+            </Link>
+          </p>
+          <p>
+            Administrator?{" "}
+            <Link
+              to="/admin/login"
+              className="font-semibold text-slate-700 hover:underline"
+            >
+              Admin Login
+            </Link>
+          </p>
+        </div>
       )}
     </div>
   );

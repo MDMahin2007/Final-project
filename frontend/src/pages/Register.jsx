@@ -83,7 +83,10 @@ const Register = () => {
           {loading ? "Creating account..." : "Register"}
         </button>
       </form>
-      <p className="mt-5 text-sm text-slate-600">Already registered? <Link to="/login" className="font-semibold text-primary">Login</Link></p>
+      <div className="mt-5 space-y-2 text-sm text-slate-600">
+        <p>Already registered? <Link to="/login" className="font-semibold text-primary hover:underline">Login</Link></p>
+        <p className="text-xs text-slate-500">Administrator account? <Link to="/admin/register" className="font-semibold text-slate-700 hover:underline">Register as Admin</Link></p>
+      </div>
     </div>
   );
 };
