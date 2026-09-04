@@ -10,6 +10,8 @@ ClearPath is a MERN smart campus clearance and approval system. Students submit 
 - Automatic overall status: `completed` when all items are approved, `rejected` when any item is rejected, otherwise `pending`.
 - Students can resubmit only the rejected departments; already approved items stay approved.
 - A printable clearance certificate is available after every department has approved the request.
+- Students can maintain optional phone, program, and session details from their protected profile page.
+- Administrators can review derived clearance reports and export the current request data as CSV.
 - Responsive React/Tailwind UI, loading states, validation, centralized API errors, and toast notifications.
 
 ## Structure
@@ -94,6 +96,7 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | POST | `/api/auth/register-admin` | Admin | Register another administrator without replacing the current session |
 | POST | `/api/auth/login` | Public | Log in and receive JWT |
 | GET | `/api/auth/me` | Authenticated | Restore and validate the current session |
+| PATCH | `/api/auth/me` | Student | Update optional phone, program, and session fields |
 | POST | `/api/clearance` | Student | Create the four default clearance items |
 | GET | `/api/clearance/my` | Student | Get the student’s request, or `null` |
 | POST | `/api/clearance/my/resubmit` | Student | Reset rejected items to pending |

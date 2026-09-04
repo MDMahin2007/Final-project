@@ -11,9 +11,11 @@ import Register from "./pages/Register.jsx";
 import StudentDashboard from "./pages/student/Dashboard.jsx";
 import NewRequest from "./pages/student/NewRequest.jsx";
 import Certificate from "./pages/student/Certificate.jsx";
+import Profile from "./pages/student/Profile.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import ManageRequests from "./pages/admin/ManageRequests.jsx";
 import AdminRegister from "./pages/admin/Register.jsx";
+import Reports from "./pages/admin/Reports.jsx";
 
 const App = () => {
   return (
@@ -33,6 +35,7 @@ const App = () => {
           <Route element={<StudentLayout />}>
             <Route path="student/dashboard" element={<StudentDashboard />} />
             <Route path="student/certificate" element={<Certificate />} />
+            <Route path="student/profile" element={<Profile />} />
             <Route path="student/new-request" element={<NewRequest />} />
             <Route
               path="student/requests"
@@ -53,6 +56,7 @@ const App = () => {
             />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/requests" element={<ManageRequests />} />
+            <Route path="admin/reports" element={<Reports />} />
             <Route path="admin/add-admin" element={<AdminRegister />} />
             <Route
               path="admin/requests/:id"

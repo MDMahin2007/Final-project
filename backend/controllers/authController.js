@@ -147,3 +147,29 @@ export const loginUser = async (req, res, next) => {
 export const getMe = async (req, res) => {
     res.json({ success: true, data: { user: req.user.toJSON() } })
 }
+
+export const updateMe = async (req, res, next) => {
+    try {
+        const allowedFields = ['phone', 'program', 'session']
+        const providedFields = allowedFields.filter((field) => req.body?.[field] !== undefined)
+
+        if (!providedFields.length) {
+            return res.status(400).json({ success: false, message: 'Provide at least one profile field to update' })
+        }
+
+        for (const field of providedFields) {
+            if (typeof req.body[field] !== 'string') {
+                return res.status(400).json({ success: false, message: `${field} must be a text value` })
+            }
+        }
+
+        providedFields.forEach((field) => {
+            req.user[field] = req.body[field].trim()
+        })
+
+        await req.user.save()
+        res.json({ success: true, message: 'Profile updated successfully', data: { user: req.user.toJSON() } })
+    } catch (error) {
+        next(error)
+    }
+}

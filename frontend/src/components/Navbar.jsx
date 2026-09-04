@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../context/authContext.js";
 import {
   HiHome,
@@ -7,6 +7,8 @@ import {
   HiOutlineUser,
   HiOutlineClipboardList,
   HiOutlinePresentationChartBar,
+  HiOutlineUserCircle,
+  HiOutlineChartBar,
 } from "react-icons/hi";
 
 const Navbar = () => {
@@ -35,6 +37,11 @@ const Navbar = () => {
       label: "Certificate",
       icon: HiOutlineClipboardList,
     },
+    {
+      to: "/student/profile",
+      label: "Profile",
+      icon: HiOutlineUserCircle,
+    },
   ];
 
   const adminLinks = [
@@ -47,6 +54,11 @@ const Navbar = () => {
       to: "/admin/requests",
       label: "Manage Requests",
       icon: HiOutlineClipboardList,
+    },
+    {
+      to: "/admin/reports",
+      label: "Reports",
+      icon: HiOutlineChartBar,
     },
   ];
 
@@ -78,15 +90,18 @@ const Navbar = () => {
           {links.map((item) => {
             const Icon = item.icon;
             return (
-              <Link
+              <NavLink
                 key={item.to}
                 to={item.to}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                end
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${isActive ? "bg-slate-800 text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`
+                }
                 onClick={() => setOpen(false)}
               >
                 {Icon && <Icon className="h-4 w-4" />}
                 {item.label}
-              </Link>
+              </NavLink>
             );
           })}
           {user && (

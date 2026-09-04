@@ -35,6 +35,11 @@ export const AuthProvider = ({ children }) => {
     setSession({ token: "", user: null });
   }, []);
 
+  const updateUser = useCallback((userData) => {
+    localStorage.setItem("clearpathUser", JSON.stringify(userData));
+    setSession((current) => ({ ...current, user: userData }));
+  }, []);
+
   const restoreSession = useCallback(async () => {
     const storedToken = localStorage.getItem("clearpathToken");
     if (!storedToken) {
@@ -98,7 +103,16 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, login, logout, register, registerAdmin }}
+      value={{
+        user,
+        token,
+        loading,
+        login,
+        logout,
+        register,
+        registerAdmin,
+        updateUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

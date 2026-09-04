@@ -1,11 +1,11 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/authContext.js";
 import {
   HiOutlinePresentationChartBar,
   HiOutlineClipboardList,
   HiOutlineUserCircle,
-  HiOutlineUserAdd,
+  HiOutlineChartBar,
   HiOutlineLogout,
 } from "react-icons/hi";
 
@@ -25,9 +25,9 @@ const Sidebar = ({ role }) => {
             icon: HiOutlineClipboardList,
           },
           {
-            to: "/admin/add-admin",
-            label: "Register Admin",
-            icon: HiOutlineUserAdd,
+            to: "/admin/reports",
+            label: "Reports",
+            icon: HiOutlineChartBar,
           },
         ]
       : [
@@ -41,6 +41,11 @@ const Sidebar = ({ role }) => {
             label: "Certificate",
             icon: HiOutlineClipboardList,
           },
+          {
+            to: "/student/profile",
+            label: "Profile",
+            icon: HiOutlineUserCircle,
+          },
         ];
 
   return (
@@ -53,14 +58,17 @@ const Sidebar = ({ role }) => {
         {items.map((item) => {
           const Icon = item.icon;
           return (
-            <Link
+            <NavLink
               key={item.to}
               to={item.to}
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-700 transition hover:bg-slate-100"
+              end
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-2xl px-4 py-3 transition ${isActive ? "bg-blue-50 font-semibold text-primary" : "text-slate-700 hover:bg-slate-100"}`
+              }
             >
               {Icon && <Icon className="h-5 w-5" />}
               {item.label}
-            </Link>
+            </NavLink>
           );
         })}
       </div>

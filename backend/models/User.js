@@ -6,6 +6,9 @@ const userSchema = new mongoose.Schema(
         // Required for student accounts. `sparse` lets admin accounts omit it.
         studentId: { type: String, trim: true, unique: true, sparse: true },
         department: { type: String, trim: true },
+        phone: { type: String, trim: true, maxlength: 30, default: '' },
+        program: { type: String, trim: true, maxlength: 120, default: '' },
+        session: { type: String, trim: true, maxlength: 30, default: '' },
         email: {
             type: String,
             required: true,
