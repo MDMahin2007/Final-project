@@ -15,7 +15,11 @@ const app = express()
 app.use(express.json())
 app.use('/uploads', express.static(uploadsDirectory))
 
-const allowedOrigins = [process.env.CLIENT_URL, process.env.FRONTEND_URL]
+const allowedOrigins = [
+    process.env.CLIENT_URL,
+    process.env.FRONTEND_URL,
+    'https://smartcumpas2.netlify.app',
+]
     .filter(Boolean)
     .flatMap((value) => value.split(',').map((origin) => origin.trim()))
     .filter(Boolean)
@@ -48,6 +52,8 @@ app.use('/api/clearance', clearanceRoutes)
 app.use(notFound)
 app.use(errorHandler)
 
+export default app
+
 const PORT = process.env.PORT || 5000
 
 const startServer = async () => {
@@ -62,7 +68,9 @@ const startServer = async () => {
     })
 }
 
-startServer().catch((error) => {
-    console.error('Server startup failed:', error.message)
-    process.exit(1)
-})
+if (!process.env.VERCEL) {
+    startServer().catch((error) => {
+        console.error('Server startup failed:', error.message)
+        process.exit(1)
+    })
+}

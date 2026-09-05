@@ -73,7 +73,7 @@ ADMIN_PASSWORD=replace_with_a_secure_password
 Frontend (`frontend/.env`):
 
 ```env
-VITE_API_URL=/api
+VITE_API_URL=https://final-project-e1pzkxhy3-saruf.vercel.app/api
 ```
 
 Local development uses Vite's `/api` proxy to `http://localhost:5000`. For production, set `VITE_API_URL` to the deployed backend URL ending in `/api`.
@@ -127,5 +127,7 @@ The backend has no test framework configured. Its production startup validates `
 
 - Deploy `frontend` as a Vite site on Vercel and set `VITE_API_URL` to the deployed backend URL ending in `/api`.
 - Deploy `backend` as a Node service on Render (or another Node host), using `npm start` and setting `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in the host environment.
+- For Netlify frontend deployment, use build command `npm run build`, publish directory `dist`, and set `VITE_API_URL` to the deployed Vercel backend URL ending in `/api`.
+- For Vercel backend deployment, deploy the `backend/` directory and set `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_SECRET_KEY`. Set `CLIENT_URL` to the Netlify site URL.
 - Use a MongoDB Atlas connection string for `MONGO_URI`, restrict Atlas network access appropriately, and rotate any secret that was previously committed.
 - `frontend/vercel.json` provides the SPA fallback needed for direct navigation to React routes.
