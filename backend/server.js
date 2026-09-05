@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import { fileURLToPath } from 'url'
 import cors from 'cors'
 import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
@@ -9,7 +10,7 @@ import clearanceRoutes from './routes/clearanceRoutes.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 import { ensureUploadDirectories, uploadsDirectory } from './middleware/uploadMiddleware.js'
 
-dotenv.config()
+dotenv.config({ path: fileURLToPath(new URL('.env', import.meta.url)) })
 const app = express()
 
 app.use(express.json())
@@ -42,6 +43,16 @@ app.get('/', (req, res) => {
 
 app.get('/api/health', (req, res) => {
     res.json({ success: true, message: 'ClearPath API is healthy' })
+})
+
+// Vercel reuses warm processes, so connect lazily and cache the Mongoose connection.
+app.use('/api', async (_req, _res, next) => {
+    try {
+        await connectDB()
+        next()
+    } catch (error) {
+        next(error)
+    }
 })
 
 app.use('/api/auth', authRoutes)

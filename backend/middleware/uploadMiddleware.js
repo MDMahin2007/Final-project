@@ -52,14 +52,16 @@ const avatarUploader = multer({
 }).single('avatar')
 
 const runUploader = (uploader) => (req, res, next) => {
-    uploader(req, res, async (error) => {
-        if (error) {
-            const files = req.files || (req.file ? [req.file] : [])
-            await Promise.all(files.map((file) => removeUploadedFile(file.path)))
-            return next(error)
-        }
-        next()
-    })
+    ensureUploadDirectories()
+        .then(() => uploader(req, res, async (error) => {
+            if (error) {
+                const files = req.files || (req.file ? [req.file] : [])
+                await Promise.all(files.map((file) => removeUploadedFile(file.path)))
+                return next(error)
+            }
+            next()
+        }))
+        .catch(next)
 }
 
 export const uploadDocuments = runUploader(documentUploader)
