@@ -5,6 +5,7 @@ import {
   HiArrowLeft,
   HiCheckCircle,
   HiDocumentAdd,
+  HiExclamationCircle,
   HiUpload,
 } from "react-icons/hi";
 import api from "../../services/api.js";
@@ -22,6 +23,7 @@ const Apply = () => {
   const [files, setFiles] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [resubmitting, setResubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -79,7 +81,63 @@ const Apply = () => {
     }
   };
 
+  const resubmitRejected = async () => {
+    try {
+      setResubmitting(true);
+      setError("");
+      await api.post("/clearance/my/resubmit");
+      toast.success("Rejected departments were reset to pending.");
+      navigate("/student/dashboard");
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        "Unable to resubmit rejected departments.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setResubmitting(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
+
+  if (request && request.overallStatus === "rejected") {
+    return (
+      <section className="rounded-[2rem] bg-white p-8 shadow-sm sm:p-10">
+        <HiExclamationCircle className="h-12 w-12 text-red-600" />
+        <h1 className="mt-5 text-2xl font-semibold text-slate-900">
+          Some departments rejected your request
+        </h1>
+        <p className="mt-3 max-w-xl text-sm text-slate-600">
+          You can't start a brand-new request, but you can resubmit the rejected
+          departments — approved departments stay approved. Add or replace
+          supporting documents from your dashboard first if a rejection was
+          about a document.
+        </p>
+        {error && (
+          <div className="mt-6 rounded-3xl bg-red-50 p-5 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={resubmitRejected}
+            disabled={resubmitting}
+            className="inline-flex rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {resubmitting ? "Resubmitting..." : "Resubmit rejected departments"}
+          </button>
+          <Link
+            to="/student/dashboard"
+            className="inline-flex rounded-full border border-primary px-5 py-3 text-sm font-semibold text-primary hover:bg-blue-50"
+          >
+            Manage documents on dashboard
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   if (request) {
     return (

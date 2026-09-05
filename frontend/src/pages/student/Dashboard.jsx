@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { HiCheckCircle, HiExclamationCircle } from "react-icons/hi";
+import { HiCheckCircle, HiExclamationCircle, HiUpload } from "react-icons/hi";
 import { HiCheck, HiClock, HiX } from "react-icons/hi";
 import api from "../../services/api.js";
 import { AuthContext } from "../../context/authContext.js";
@@ -16,7 +16,9 @@ const StudentDashboard = () => {
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const fileInput = useRef(null);
 
   const loadRequest = async () => {
     try {
@@ -53,6 +55,43 @@ const StudentDashboard = () => {
       toast.error(message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const uploadDocuments = async (event) => {
+    const selected = Array.from(event.target.files || []);
+    event.target.value = "";
+    if (!selected.length) return;
+
+    const currentCount = request?.documents?.length || 0;
+    const valid = selected.filter(
+      (file) => file.type === "application/pdf" && file.size <= 5 * 1024 * 1024,
+    );
+    if (valid.length !== selected.length) {
+      toast.error("Only PDF files up to 5MB each can be uploaded.");
+    }
+    if (!valid.length) return;
+    if (currentCount + valid.length > 6) {
+      toast.error(
+        `You can attach up to 6 documents total (${currentCount} already uploaded).`,
+      );
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      valid.forEach((file) => formData.append("documents", file));
+      const response = await api.post("/clearance/documents", formData);
+      setRequest(response.data.data);
+      toast.success("Documents uploaded successfully.");
+    } catch (err) {
+      const message =
+        err.response?.data?.message || "Unable to upload documents.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -318,6 +357,30 @@ const StudentDashboard = () => {
               <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
                 No documents submitted.
               </p>
+            )}
+            {request.overallStatus !== "completed" && (
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <input
+                  ref={fileInput}
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  multiple
+                  onChange={uploadDocuments}
+                  className="sr-only"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInput.current?.click()}
+                  disabled={uploading || (request.documents?.length || 0) >= 6}
+                  className="inline-flex items-center gap-2 rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <HiUpload className="h-4 w-4" />
+                  {uploading ? "Uploading..." : "Add supporting documents"}
+                </button>
+                <p className="mt-2 text-xs text-slate-500">
+                  PDF only, up to 5MB each, 6 documents maximum.
+                </p>
+              </div>
             )}
           </section>
         </>
