@@ -42,15 +42,13 @@ const Login = () => {
 
   return (
     <div className="mx-auto max-w-lg py-6 sm:py-12">
-      <div className="rounded-3xl border border-slate-700/80 bg-slate-900 p-6 shadow-2xl shadow-slate-950/30 sm:p-10">
+      <div className="rounded-[2rem] bg-white p-6 shadow-sm sm:p-10">
         <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-400">
-            ClearPath access
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+            ClearPath Portal
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-            Login
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
+          <h1 className="mt-3 text-3xl font-semibold text-slate-900">Login</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Sign in to continue to your clearance workspace.
           </p>
         </div>
@@ -58,7 +56,7 @@ const Login = () => {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-slate-200"
+              className="block text-sm font-medium text-slate-700"
             >
               Email address
             </label>
@@ -70,13 +68,13 @@ const Login = () => {
               required
               autoComplete="email"
               placeholder="you@campus.edu"
-              className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+              className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-primary focus:bg-white"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-slate-200"
+              className="block text-sm font-medium text-slate-700"
             >
               Password
             </label>
@@ -88,13 +86,13 @@ const Login = () => {
               required
               autoComplete="current-password"
               placeholder="Enter your password"
-              className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+              className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-primary focus:bg-white"
             />
           </div>
           {error && (
             <div
               role="alert"
-              className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300"
+              className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
             >
               {error}
             </div>
@@ -102,16 +100,16 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-sky-400 px-5 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {loading ? "Signing in..." : "Sign In →"}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-        <p className="mt-7 text-center text-sm text-slate-400">
+        <p className="mt-7 text-center text-sm text-slate-600">
           Don&apos;t have an account?{" "}
           <Link
             to="/register"
-            className="font-semibold text-sky-400 hover:text-sky-300"
+            className="font-semibold text-primary hover:underline"
           >
             Register
           </Link>

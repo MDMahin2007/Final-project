@@ -73,10 +73,19 @@ export const registerAdmin = async (req, res, next) => {
         }
 
         if (!isAuthorizedAdmin) {
+            const expectedKey = process.env.ADMIN_SECRET_KEY
+            if (!expectedKey || !expectedKey.trim()) {
+                // Fail closed: if the server isn't configured with a real
+                // secret key, refuse all self-service admin registration
+                // rather than falling back to a guessable default.
+                return res.status(503).json({
+                    success: false,
+                    message: 'Admin registration is not available right now. Contact the system administrator.',
+                })
+            }
             if (!adminSecretKey || typeof adminSecretKey !== 'string' || !adminSecretKey.trim()) {
                 return res.status(400).json({ success: false, message: 'Admin security key is required' })
             }
-            const expectedKey = process.env.ADMIN_SECRET_KEY || 'ClearPathAdmin2026!'
             if (adminSecretKey.trim() !== expectedKey.trim()) {
                 return res.status(403).json({ success: false, message: 'Invalid admin security key' })
             }

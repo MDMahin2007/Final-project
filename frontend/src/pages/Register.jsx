@@ -38,6 +38,11 @@ const Register = () => {
     setError("");
   };
 
+  const showError = (message) => {
+    setError(message);
+    toast.error(message);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
@@ -96,10 +101,6 @@ const Register = () => {
     }
   };
 
-  const showError = (message) => {
-    setError(message);
-    toast.error(message);
-  };
   const fields = isAdmin
     ? [
         ["name", "Full Name", "text", "Dr. Sarah Connor"],
@@ -120,20 +121,20 @@ const Register = () => {
 
   return (
     <div className="mx-auto max-w-lg py-6 sm:py-12">
-      <div className="rounded-3xl border border-slate-700/80 bg-slate-900 p-6 shadow-2xl shadow-slate-950/30 sm:p-10">
+      <div className="rounded-[2rem] bg-white p-6 shadow-sm sm:p-10">
         <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
             Join ClearPath
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">
+          <h1 className="mt-3 text-3xl font-semibold text-slate-900">
             Create your account
           </h1>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Choose your workspace and start moving clearance forward.
           </p>
         </div>
         <div
-          className="grid grid-cols-2 rounded-2xl border border-slate-700 bg-slate-950 p-1"
+          className="grid grid-cols-2 rounded-2xl border border-slate-200 bg-slate-50 p-1"
           role="tablist"
           aria-label="Account type"
         >
@@ -147,7 +148,7 @@ const Register = () => {
               role="tab"
               aria-selected={role === value}
               onClick={() => switchRole(value)}
-              className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition ${role === value ? "bg-sky-400 text-slate-950 shadow-lg shadow-sky-400/10" : "text-slate-400 hover:text-white"}`}
+              className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition ${role === value ? "bg-primary text-white shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
             >
               <Icon className="h-5 w-5" />
               {label}
@@ -159,7 +160,7 @@ const Register = () => {
             <div key={name}>
               <label
                 htmlFor={name}
-                className="block text-sm font-medium text-slate-200"
+                className="block text-sm font-medium text-slate-700"
               >
                 {label}
               </label>
@@ -180,14 +181,14 @@ const Register = () => {
                         : "off"
                 }
                 placeholder={placeholder}
-                className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+                className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-primary focus:bg-white"
               />
             </div>
           ))}
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-slate-200"
+              className="block text-sm font-medium text-slate-700"
             >
               Password
             </label>
@@ -201,13 +202,13 @@ const Register = () => {
               minLength={8}
               autoComplete="new-password"
               placeholder="At least 8 characters"
-              className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+              className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-primary focus:bg-white"
             />
           </div>
           <div>
             <label
               htmlFor="confirmPassword"
-              className="block text-sm font-medium text-slate-200"
+              className="block text-sm font-medium text-slate-700"
             >
               Confirm Password
             </label>
@@ -221,13 +222,13 @@ const Register = () => {
               minLength={8}
               autoComplete="new-password"
               placeholder="Repeat your password"
-              className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+              className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-primary focus:bg-white"
             />
           </div>
           {error && (
             <div
               role="alert"
-              className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300"
+              className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
             >
               {error}
             </div>
@@ -235,16 +236,16 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-sky-400 px-5 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {loading ? "Creating account..." : "Create Account →"}
+            {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
-        <p className="mt-7 text-center text-sm text-slate-400">
+        <p className="mt-7 text-center text-sm text-slate-600">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="font-semibold text-sky-400 hover:text-sky-300"
+            className="font-semibold text-primary hover:underline"
           >
             Sign In
           </Link>
