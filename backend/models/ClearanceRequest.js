@@ -15,6 +15,14 @@ const clearanceItemSchema = new mongoose.Schema(
 const clearanceRequestSchema = new mongoose.Schema(
     {
         student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+        documents: {
+            type: [{
+                name: { type: String, required: true, trim: true },
+                url: { type: String, required: true, trim: true },
+                uploadedAt: { type: Date, default: Date.now },
+            }],
+            default: [],
+        },
         items: {
             type: [clearanceItemSchema],
             required: true,

@@ -11,6 +11,7 @@ ClearPath is a MERN smart campus clearance and approval system. Students submit 
 - Students can resubmit only the rejected departments; already approved items stay approved.
 - A printable clearance certificate is available after every department has approved the request.
 - Students can maintain optional phone, program, and session details from their protected profile page.
+- Students can attach PDF clearance documents and update a JPG/PNG profile picture.
 - Administrators can review derived clearance reports and export the current request data as CSV.
 - Responsive React/Tailwind UI, loading states, validation, centralized API errors, and toast notifications.
 
@@ -97,16 +98,20 @@ This creates the configured `ADMIN_EMAIL` account if it does not already exist. 
 | POST | `/api/auth/login` | Public | Log in and receive JWT |
 | GET | `/api/auth/me` | Authenticated | Restore and validate the current session |
 | PATCH | `/api/auth/me` | Student | Update optional phone, program, and session fields |
+| POST | `/api/auth/me/avatar` | Authenticated | Upload or replace the current user profile picture |
 | POST | `/api/clearance` | Student | Create the four default clearance items |
 | GET | `/api/clearance/my` | Student | Get the student’s request, or `null` |
 | POST | `/api/clearance/my/resubmit` | Student | Reset rejected items to pending |
 | GET | `/api/health` | Public | Confirm the API is running |
 | GET | `/api/clearance?status=pending` | Admin | List requests, optionally filtered |
 | PATCH | `/api/clearance/:requestId/item/:itemId` | Admin | Update an item with `approved` or `rejected` and optional remarks |
+| POST | `/api/clearance/documents` | Student | Attach up to 6 PDF documents to the student request |
 
 `/api/login` and `/api/auth/status` are also available as compatibility aliases for clients using the older authentication paths.
 
 The first administrator must be created with `npm run seed`. After signing in, an administrator can create additional administrator accounts at `/admin/register`.
+
+Uploaded documents and profile pictures are stored on local disk under `backend/uploads/` and served from `/uploads`. This works for local development and hosting with persistent disks. Ephemeral hosting plans, including some free tiers, may lose uploaded files on redeploy; use persistent storage for production uploads.
 
 ## Available checks
 

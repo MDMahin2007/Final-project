@@ -4,6 +4,7 @@ import { HiChevronDown, HiChevronUp } from "react-icons/hi";
 import api from "../../services/api.js";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
+import { getInitial, getMediaUrl } from "../../services/media.js";
 
 const filters = ["all", "pending", "completed", "rejected"];
 const departments = ["all", "Library", "Hostel", "Accounts", "Department"];
@@ -175,18 +176,31 @@ const ManageRequests = () => {
                 onClick={() => setExpandedId(isExpanded ? null : request._id)}
                 className="flex w-full flex-col gap-4 p-6 text-left hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
-                  <p className="text-lg font-semibold text-slate-900">
-                    {request.student?.name || "Unknown student"}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {request.student?.studentId || "No ID"} ·{" "}
-                    {request.student?.department || "No department"} ·{" "}
-                    {request.student?.email}
-                  </p>
-                  <p className="mt-2 text-xs text-slate-400">
-                    Submitted {new Date(request.createdAt).toLocaleString()}
-                  </p>
+                <div className="flex items-center gap-3">
+                  {request.student?.profilePicture ? (
+                    <img
+                      src={getMediaUrl(request.student.profilePicture)}
+                      alt=""
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary font-semibold text-white">
+                      {getInitial(request.student?.name)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-lg font-semibold text-slate-900">
+                      {request.student?.name || "Unknown student"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {request.student?.studentId || "No ID"} ·{" "}
+                      {request.student?.department || "No department"} ·{" "}
+                      {request.student?.email}
+                    </p>
+                    <p className="mt-2 text-xs text-slate-400">
+                      Submitted {new Date(request.createdAt).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge status={request.overallStatus} />
@@ -199,6 +213,49 @@ const ManageRequests = () => {
               </button>
               {isExpanded && (
                 <div className="border-t border-slate-100 bg-slate-50 p-5 sm:p-6">
+                  <section className="mb-4 rounded-3xl bg-white p-5 shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <h2 className="text-lg font-semibold text-slate-900">
+                        Documents submitted
+                      </h2>
+                      <span className="text-sm text-slate-500">
+                        {request.documents?.length || 0} files
+                      </span>
+                    </div>
+                    {request.documents?.length ? (
+                      <ul className="mt-4 space-y-2">
+                        {request.documents.map((document) => (
+                          <li
+                            key={document._id || document.url}
+                            className="flex flex-wrap items-center gap-3 rounded-2xl bg-slate-50 p-3 text-sm"
+                          >
+                            <span className="min-w-0 flex-1 truncate font-medium text-slate-800">
+                              {document.name}
+                            </span>
+                            <a
+                              href={getMediaUrl(document.url)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-semibold text-primary hover:underline"
+                            >
+                              View
+                            </a>
+                            <a
+                              href={getMediaUrl(document.url)}
+                              download={document.name}
+                              className="font-semibold text-primary hover:underline"
+                            >
+                              Download
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                        No documents submitted.
+                      </p>
+                    )}
+                  </section>
                   <div className="grid gap-4 lg:grid-cols-2">
                     {request.items.map((item) => (
                       <section

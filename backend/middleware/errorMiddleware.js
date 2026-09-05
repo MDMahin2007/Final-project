@@ -7,7 +7,16 @@ export const errorHandler = (err, req, res, _next) => {
     let statusCode = err.status || err.statusCode || 500
     let message = statusCode >= 500 ? 'Server error' : (err.message || 'Request failed')
 
-    if (err instanceof SyntaxError && 'body' in err) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        statusCode = 400
+        message = 'Uploaded file is too large'
+    } else if (err.code === 'LIMIT_FILE_COUNT') {
+        statusCode = 400
+        message = 'Too many files uploaded'
+    } else if (err.message === 'Only PDF clearance documents are allowed' || err.message === 'Only JPG or PNG profile pictures are allowed') {
+        statusCode = 400
+        message = err.message
+    } else if (err instanceof SyntaxError && 'body' in err) {
         statusCode = 400
         message = 'Malformed JSON request'
     } else if (err.name === 'CastError') {

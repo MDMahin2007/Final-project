@@ -6,6 +6,7 @@ import {
   HiOutlineClipboardList,
   HiOutlineUserCircle,
   HiOutlineChartBar,
+  HiOutlineDocumentAdd,
   HiOutlineLogout,
 } from "react-icons/hi";
 
@@ -35,6 +36,11 @@ const Sidebar = ({ role }) => {
             to: "/student/dashboard",
             label: "Dashboard",
             icon: HiOutlinePresentationChartBar,
+          },
+          {
+            to: "/student/apply",
+            label: "Apply for Clearance",
+            icon: HiOutlineDocumentAdd,
           },
           {
             to: "/student/certificate",

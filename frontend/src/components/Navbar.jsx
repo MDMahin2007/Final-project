@@ -9,6 +9,7 @@ import {
   HiOutlinePresentationChartBar,
   HiOutlineUserCircle,
   HiOutlineChartBar,
+  HiOutlineDocumentAdd,
 } from "react-icons/hi";
 
 const Navbar = () => {
@@ -31,6 +32,11 @@ const Navbar = () => {
       to: "/student/dashboard",
       label: "Dashboard",
       icon: HiOutlinePresentationChartBar,
+    },
+    {
+      to: "/student/apply",
+      label: "Apply for Clearance",
+      icon: HiOutlineDocumentAdd,
     },
     {
       to: "/student/certificate",

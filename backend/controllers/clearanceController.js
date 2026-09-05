@@ -1,4 +1,5 @@
 import ClearanceRequest, { CLEARANCE_DEPARTMENTS } from '../models/ClearanceRequest.js'
+import { removeUploadedFile } from '../middleware/uploadMiddleware.js'
 
 // A student can submit one immutable request. Its four items start pending.
 export const createClearance = async (req, res, next) => {
@@ -25,7 +26,7 @@ export const createClearance = async (req, res, next) => {
 export const getMyRequest = async (req, res, next) => {
     try {
         const request = await ClearanceRequest.findOne({ student: req.user._id })
-            .populate('student', 'name email studentId department')
+            .populate('student', 'name email studentId department profilePicture')
         res.json({ success: true, data: request })
     } catch (error) {
         next(error)
@@ -35,7 +36,7 @@ export const getMyRequest = async (req, res, next) => {
 export const resubmitClearance = async (req, res, next) => {
     try {
         const request = await ClearanceRequest.findOne({ student: req.user._id })
-            .populate('student', 'name email studentId department')
+            .populate('student', 'name email studentId department profilePicture')
 
         if (!request) {
             return res.status(404).json({ success: false, message: 'No clearance request found' })
@@ -78,7 +79,7 @@ export const getAllRequests = async (req, res, next) => {
 
         const requests = await ClearanceRequest.find(filter)
             .sort({ createdAt: -1 })
-            .populate('student', 'name email studentId department')
+            .populate('student', 'name email studentId department profilePicture')
         res.json({ success: true, data: requests })
     } catch (error) {
         next(error)
@@ -114,9 +115,39 @@ export const updateClearanceItem = async (req, res, next) => {
         item.updatedAt = new Date()
         await request.save()
 
-        const populatedRequest = await request.populate('student', 'name email studentId department')
+        const populatedRequest = await request.populate('student', 'name email studentId department profilePicture')
         res.json({ success: true, message: `${item.department} clearance updated successfully`, data: populatedRequest })
     } catch (error) {
+        next(error)
+    }
+}
+
+export const uploadClearanceDocuments = async (req, res, next) => {
+    try {
+        const request = await ClearanceRequest.findOne({ student: req.user._id })
+        if (!request) {
+            return res.status(404).json({ success: false, message: 'Create a clearance request before uploading documents' })
+        }
+        if (request.overallStatus === 'completed') {
+            return res.status(400).json({ success: false, message: 'Documents cannot be added to a completed request' })
+        }
+        if (!req.files?.length) {
+            return res.status(400).json({ success: false, message: 'Select at least one PDF document' })
+        }
+        if (request.documents.length + req.files.length > 6) {
+            return res.status(400).json({ success: false, message: 'A request can contain up to 6 documents' })
+        }
+
+        request.documents.push(...req.files.map((file) => ({
+            name: file.originalname,
+            url: `/uploads/documents/${file.filename}`,
+            uploadedAt: new Date(),
+        })))
+        await request.save()
+        const populatedRequest = await request.populate('student', 'name email studentId department profilePicture')
+        res.status(201).json({ success: true, message: 'Documents uploaded successfully', data: populatedRequest })
+    } catch (error) {
+        await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
         next(error)
     }
 }

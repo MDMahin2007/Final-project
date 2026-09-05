@@ -40,7 +40,12 @@ const AdminRegister = () => {
     event.preventDefault();
     setError("");
 
-    if (!form.name.trim() || !form.email.trim() || !form.password || !form.confirmPassword) {
+    if (
+      !form.name.trim() ||
+      !form.email.trim() ||
+      !form.password ||
+      !form.confirmPassword
+    ) {
       const message = "Please fill all required fields.";
       setError(message);
       toast.error(message);
@@ -92,7 +97,7 @@ const AdminRegister = () => {
       toast.success(
         isInternal
           ? "Administrator account created successfully."
-          : "Admin account registered successfully! Welcome to ClearPath."
+          : "Admin account registered successfully! Welcome to ClearPath.",
       );
       navigate("/admin/dashboard");
     } catch (err) {
@@ -130,7 +135,10 @@ const AdminRegister = () => {
 
       <form onSubmit={handleSubmit} className="mt-7 space-y-5">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-slate-700"
+          >
             Full Name
           </label>
           <input
@@ -148,7 +156,10 @@ const AdminRegister = () => {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-slate-700"
+          >
             Official Email Address
           </label>
           <input
@@ -193,7 +204,10 @@ const AdminRegister = () => {
         )}
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-slate-700"
+          >
             Password (min 8 characters)
           </label>
           <input
@@ -263,7 +277,7 @@ const AdminRegister = () => {
             <p>
               Already registered as admin?{" "}
               <Link
-                to="/admin/login"
+                to="/login"
                 className="font-semibold text-primary hover:underline"
               >
                 Login here

@@ -9,7 +9,7 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import StudentDashboard from "./pages/student/Dashboard.jsx";
-import NewRequest from "./pages/student/NewRequest.jsx";
+import Apply from "./pages/student/Apply.jsx";
 import Certificate from "./pages/student/Certificate.jsx";
 import Profile from "./pages/student/Profile.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
@@ -25,7 +25,10 @@ const App = () => {
           <Route index element={<Home />} />
           <Route element={<GuestRoute />}>
             <Route path="login" element={<Login />} />
-            <Route path="admin/login" element={<Login />} />
+            <Route
+              path="admin/login"
+              element={<Navigate to="/login" replace />}
+            />
             <Route path="register" element={<Register />} />
           </Route>
           <Route path="admin/register" element={<Register />} />
@@ -34,9 +37,13 @@ const App = () => {
         <Route element={<ProtectedRoute role="student" />}>
           <Route element={<StudentLayout />}>
             <Route path="student/dashboard" element={<StudentDashboard />} />
+            <Route path="student/apply" element={<Apply />} />
             <Route path="student/certificate" element={<Certificate />} />
             <Route path="student/profile" element={<Profile />} />
-            <Route path="student/new-request" element={<NewRequest />} />
+            <Route
+              path="student/new-request"
+              element={<Navigate to="/student/apply" replace />}
+            />
             <Route
               path="student/requests"
               element={<Navigate to="/student/dashboard" replace />}

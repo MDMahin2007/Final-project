@@ -7,11 +7,13 @@ import { getMe, loginUser } from './controllers/authController.js'
 import { protect } from './middleware/authMiddleware.js'
 import clearanceRoutes from './routes/clearanceRoutes.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
+import { ensureUploadDirectories, uploadsDirectory } from './middleware/uploadMiddleware.js'
 
 dotenv.config()
 const app = express()
 
 app.use(express.json())
+app.use('/uploads', express.static(uploadsDirectory))
 
 const allowedOrigins = [process.env.CLIENT_URL, process.env.FRONTEND_URL]
     .filter(Boolean)
@@ -54,6 +56,7 @@ const startServer = async () => {
     }
 
     await connectDB()
+    await ensureUploadDirectories()
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`)
     })

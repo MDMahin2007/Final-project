@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
         phone: { type: String, trim: true, maxlength: 30, default: '' },
         program: { type: String, trim: true, maxlength: 120, default: '' },
         session: { type: String, trim: true, maxlength: 30, default: '' },
+        profilePicture: { type: String, default: null },
         email: {
             type: String,
             required: true,

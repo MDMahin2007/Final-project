@@ -1,11 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import {
-  HiCheckCircle,
-  HiDocumentAdd,
-  HiExclamationCircle,
-} from "react-icons/hi";
+import { HiCheckCircle, HiExclamationCircle } from "react-icons/hi";
 import { HiCheck, HiClock, HiX } from "react-icons/hi";
 import api from "../../services/api.js";
 import { AuthContext } from "../../context/authContext.js";
@@ -13,6 +9,7 @@ import ClearanceTracker from "../../components/ClearanceTracker.jsx";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import DashboardCard from "../../components/DashboardCard.jsx";
+import { getMediaUrl } from "../../services/media.js";
 
 const StudentDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -52,23 +49,6 @@ const StudentDashboard = () => {
       const message =
         err.response?.data?.message ||
         "Unable to resubmit rejected departments.";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const applyForClearance = async () => {
-    try {
-      setSubmitting(true);
-      const response = await api.post("/clearance");
-      setRequest(response.data.data);
-      toast.success("Your clearance request has been submitted.");
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        "Unable to submit your clearance request.";
       setError(message);
       toast.error(message);
     } finally {
@@ -151,7 +131,7 @@ const StudentDashboard = () => {
 
       {!request ? (
         <section className="rounded-[2rem] border border-dashed border-primary/30 bg-blue-50 p-8 text-center sm:p-12">
-          <HiDocumentAdd className="mx-auto h-12 w-12 text-primary" />
+          <HiCheckCircle className="mx-auto h-12 w-12 text-primary" />
           <h2 className="mt-5 text-2xl font-semibold text-slate-900">
             Ready to begin your clearance?
           </h2>
@@ -159,14 +139,12 @@ const StudentDashboard = () => {
             Your request will be sent to Library, Hostel, Accounts, and your
             Department. It cannot be edited after submission.
           </p>
-          <button
-            type="button"
-            onClick={applyForClearance}
-            disabled={submitting}
-            className="mt-7 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
+          <Link
+            to="/student/apply"
+            className="mt-7 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-600"
           >
-            {submitting ? "Submitting request..." : "Apply for Clearance"}
-          </button>
+            Apply for Clearance
+          </Link>
         </section>
       ) : (
         <>
@@ -293,6 +271,54 @@ const StudentDashboard = () => {
                 </p>
               )}
             </div>
+          </section>
+          <section className="rounded-[2rem] bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">
+                  Submitted documents
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Supporting files attached to this request.
+                </p>
+              </div>
+              <span className="text-sm text-slate-500">
+                {request.documents?.length || 0} files
+              </span>
+            </div>
+            {request.documents?.length ? (
+              <ul className="mt-4 space-y-2">
+                {request.documents.map((document) => (
+                  <li
+                    key={document._id || document.url}
+                    className="flex flex-wrap items-center gap-3 rounded-2xl bg-slate-50 p-3 text-sm"
+                  >
+                    <span className="min-w-0 flex-1 truncate font-medium text-slate-800">
+                      {document.name}
+                    </span>
+                    <a
+                      href={getMediaUrl(document.url)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold text-primary hover:underline"
+                    >
+                      View
+                    </a>
+                    <a
+                      href={getMediaUrl(document.url)}
+                      download={document.name}
+                      className="font-semibold text-primary hover:underline"
+                    >
+                      Download
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                No documents submitted.
+              </p>
+            )}
           </section>
         </>
       )}

@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
+import { getUploadedFilePath, removeUploadedFile } from '../middleware/uploadMiddleware.js'
 
 const generateToken = (user) => {
     return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -170,6 +171,24 @@ export const updateMe = async (req, res, next) => {
         await req.user.save()
         res.json({ success: true, message: 'Profile updated successfully', data: { user: req.user.toJSON() } })
     } catch (error) {
+        next(error)
+    }
+}
+
+export const updateAvatar = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'A JPG or PNG profile picture is required' })
+        }
+
+        const previousPicture = req.user.profilePicture
+        req.user.profilePicture = `/uploads/avatars/${req.file.filename}`
+        await req.user.save()
+        await removeUploadedFile(getUploadedFilePath(previousPicture))
+
+        res.json({ success: true, message: 'Profile picture updated successfully', data: { user: req.user.toJSON() } })
+    } catch (error) {
+        if (req.file?.path) await removeUploadedFile(req.file.path)
         next(error)
     }
 }
