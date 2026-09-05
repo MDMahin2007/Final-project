@@ -58,10 +58,12 @@ const Apply = () => {
   };
 
   const submitApplication = async () => {
+    let requestCreated = false;
     try {
       setSubmitting(true);
       setError("");
-      const requestResponse = await api.post("/clearance");
+      await api.post("/clearance");
+      requestCreated = true;
       if (files.length) {
         const formData = new FormData();
         files.forEach((file) => formData.append("documents", file));
@@ -69,8 +71,14 @@ const Apply = () => {
       }
       toast.success("Your clearance request has been submitted.");
       navigate("/student/dashboard");
-      return requestResponse;
     } catch (err) {
+      if (requestCreated) {
+        const message =
+          "Your request was submitted, but the documents could not be uploaded. Add them from the dashboard.";
+        toast.error(message);
+        navigate("/student/dashboard");
+        return;
+      }
       const message =
         err.response?.data?.message ||
         "Unable to submit your clearance request.";

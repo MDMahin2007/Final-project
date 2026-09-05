@@ -126,15 +126,18 @@ export const uploadClearanceDocuments = async (req, res, next) => {
     try {
         const request = await ClearanceRequest.findOne({ student: req.user._id })
         if (!request) {
+            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
             return res.status(404).json({ success: false, message: 'Create a clearance request before uploading documents' })
         }
         if (request.overallStatus === 'completed') {
+            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
             return res.status(400).json({ success: false, message: 'Documents cannot be added to a completed request' })
         }
         if (!req.files?.length) {
             return res.status(400).json({ success: false, message: 'Select at least one PDF document' })
         }
         if (request.documents.length + req.files.length > 6) {
+            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
             return res.status(400).json({ success: false, message: 'A request can contain up to 6 documents' })
         }
 

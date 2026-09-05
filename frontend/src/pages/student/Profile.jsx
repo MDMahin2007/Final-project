@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { HiArrowLeft, HiCamera, HiOutlineUserCircle } from "react-icons/hi";
@@ -21,9 +21,33 @@ const Profile = () => {
     session: user?.session || "",
   });
   const [saving, setSaving] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
   const [avatarSaving, setAvatarSaving] = useState(false);
   const avatarInput = useRef(null);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const response = await api.get("/auth/me");
+        const profile = response.data.data.user;
+        updateUser(profile);
+        setForm({
+          phone: profile.phone || "",
+          program: profile.program || "",
+          session: profile.session || "",
+        });
+      } catch (err) {
+        setError(
+          err.response?.data?.message || "Unable to load your profile details.",
+        );
+      } finally {
+        setProfileLoading(false);
+      }
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [updateUser]);
 
   const updateField = (event) => {
     setForm((current) => ({
@@ -32,13 +56,40 @@ const Profile = () => {
     }));
   };
 
+  const setFormFromUser = (profile) => {
+    setForm({
+      phone: profile?.phone || "",
+      program: profile?.program || "",
+      session: profile?.session || "",
+    });
+  };
+
+  const startEditing = () => {
+    setFormFromUser(user);
+    setError("");
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setFormFromUser(user);
+    setError("");
+    setEditing(false);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
     try {
       setSaving(true);
-      const response = await api.patch("/auth/me", form);
-      updateUser(response.data.data.user);
+      const response = await api.patch("/auth/me", {
+        phone: form.phone.trim(),
+        program: form.program.trim(),
+        session: form.session.trim(),
+      });
+      const savedUser = response.data.data.user;
+      setFormFromUser(savedUser);
+      updateUser(savedUser);
+      setEditing(false);
       toast.success(response.data.message);
     } catch (err) {
       const message =
@@ -81,7 +132,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading || profileLoading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-6">
@@ -185,6 +236,15 @@ const Profile = () => {
           <h2 className="text-xl font-semibold text-slate-900">
             Additional details
           </h2>
+          {!editing && (
+            <button
+              type="button"
+              onClick={startEditing}
+              className="mt-4 rounded-full border border-primary px-5 py-2 text-sm font-semibold text-primary hover:bg-blue-50"
+            >
+              Edit details
+            </button>
+          )}
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             {editableFields.map(([name, label, type, placeholder]) => (
               <div key={name}>
@@ -200,6 +260,7 @@ const Profile = () => {
                   type={type}
                   value={form[name]}
                   onChange={updateField}
+                  disabled={!editing || saving}
                   maxLength={name === "program" ? 120 : 30}
                   placeholder={placeholder}
                   className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-primary focus:bg-white"
@@ -207,13 +268,25 @@ const Profile = () => {
               </div>
             ))}
           </div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="mt-6 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {saving ? "Saving changes..." : "Save changes"}
-          </button>
+          {editing && (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {saving ? "Saving changes..." : "Save changes"}
+              </button>
+              <button
+                type="button"
+                onClick={cancelEditing}
+                disabled={saving}
+                className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </form>
       </section>
     </div>

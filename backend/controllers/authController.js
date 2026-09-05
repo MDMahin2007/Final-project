@@ -193,7 +193,11 @@ export const updateAvatar = async (req, res, next) => {
         const previousPicture = req.user.profilePicture
         req.user.profilePicture = `/uploads/avatars/${req.file.filename}`
         await req.user.save()
-        await removeUploadedFile(getUploadedFilePath(previousPicture))
+        try {
+            await removeUploadedFile(getUploadedFilePath(previousPicture))
+        } catch (cleanupError) {
+            console.error('Previous profile picture cleanup failed:', cleanupError.message)
+        }
 
         res.json({ success: true, message: 'Profile picture updated successfully', data: { user: req.user.toJSON() } })
     } catch (error) {

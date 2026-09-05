@@ -56,7 +56,10 @@ const ManageRequests = () => {
         ].some((value) => value?.toLowerCase().includes(query));
       const matchesDepartment =
         departmentFilter === "all" ||
-        request.items?.some((item) => item.department === departmentFilter);
+        request.items?.some(
+          (item) =>
+            item.department === departmentFilter && item.status !== "approved",
+        );
       return matchesSearch && matchesDepartment;
     });
   }, [requests, search, departmentFilter]);
