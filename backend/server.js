@@ -19,23 +19,17 @@ if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
 const app = express()
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
-app.use(express.json({ limit: '1mb' }))
-app.use('/api', rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 300,
-    standardHeaders: 'draft-8',
-    legacyHeaders: false,
-}))
-
 const allowedOrigins = [
     process.env.CLIENT_URL,
     process.env.FRONTEND_URL,
+    'https://smart-campus-clearance.vercel.app',
 ]
     .filter(Boolean)
     .flatMap((value) => value.split(',').map((origin) => origin.trim()))
     .filter(Boolean)
 
 app.use(cors({
+    optionsSuccessStatus: 204,
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
             return callback(null, true)
@@ -45,6 +39,14 @@ app.use(cors({
         error.status = 403
         return callback(error)
     },
+}))
+
+app.use(express.json({ limit: '1mb' }))
+app.use('/api', rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 300,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
 }))
 
 app.get('/', (req, res) => {
