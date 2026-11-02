@@ -26,3 +26,7 @@ dist-ssr
 # Local environment files
 .env*
 !.env.example
+
+# Local deployment metadata
+.netlify/
+.vercel/

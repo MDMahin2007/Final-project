@@ -42,7 +42,9 @@ PORT=5000
 MONGODB_URI=mongodb+srv://<db_user>:<db_password>@<cluster-host>/
 DATABASE_NAME=clearpath_campus_clearance
 JWT_SECRET=<random-secret-at-least-32-characters>
-CLIENT_URL=http://localhost:5173
+JWT_EXPIRES_IN=1d
+CLIENT_URL=https://smart-campus-clearance.vercel.app
+FRONTEND_URL=http://localhost:5173
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=<private-password-at-least-8-characters>
 ```
@@ -55,7 +57,7 @@ Frontend `frontend/.env`:
 VITE_API_URL=/api
 ```
 
-Vite proxies `/api` and `/uploads` to `http://localhost:5000` in development. For separate production hosts, set `VITE_API_URL` to the backend URL ending in `/api`; set backend `CLIENT_URL` to the deployed frontend origin.
+Vite proxies `/api` and `/uploads` to `http://localhost:5000` in development. In production, the frontend is `https://smart-campus-clearance.vercel.app` and the backend API is `https://smart-campus-clearance.netlify.app/api`. Vercel's frontend project must have `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`; the Netlify backend project must have `CLIENT_URL=https://smart-campus-clearance.vercel.app`. These deployment URLs must not be swapped.
 
 ## Install And Run
 
@@ -138,4 +140,6 @@ Backend tests cover request status calculation, sequential approval readiness, a
 
 ## Deployment Notes
 
-Uploaded PDFs and avatars use local disk under `backend/uploads/`, which is suitable for local development and hosts with persistent storage. On ephemeral/serverless hosts, use persistent object storage before relying on uploaded files in production. Keep MongoDB network access restricted and rotate any credential that has been exposed.
+Deploy `frontend/` to Vercel with build command `npm run build`, output directory `dist`, and environment variable `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`. Deploy `backend/` as a separate Netlify site with base directory `backend`; `backend/netlify.toml` configures the Functions directory, API rewrites, and Node 22 runtime. In Netlify site settings, configure `MONGODB_URI`, `DATABASE_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `CLIENT_URL=https://smart-campus-clearance.vercel.app`. `backend/.env` is local-only and is not uploaded automatically. `FRONTEND_URL=http://localhost:5173` can remain for local development.
+
+Verify the backend at `https://smart-campus-clearance.netlify.app/api/health`. Uploaded PDFs and avatars currently use local disk under `backend/uploads/`; Netlify Functions have ephemeral storage, so production uploads require persistent object storage. The existing `backend/vercel.json` is only for an alternate Vercel backend deployment and is not used by Netlify. Keep MongoDB network access restricted and rotate any credential that has been exposed.

@@ -31,7 +31,6 @@ app.use('/api', rateLimit({
 const allowedOrigins = [
     process.env.CLIENT_URL,
     process.env.FRONTEND_URL,
-    'https://smartcumpas2.netlify.app',
 ]
     .filter(Boolean)
     .flatMap((value) => value.split(',').map((origin) => origin.trim()))
@@ -55,6 +54,10 @@ app.get('/', (req, res) => {
 
 app.get('/api/health', (req, res) => {
     res.json({ success: true, message: 'ClearPath API is healthy' })
+})
+
+app.get('/api', (req, res) => {
+    res.json({ success: true, message: 'ClearPath API is running' })
 })
 
 // Vercel reuses warm processes, so connect lazily and cache the Mongoose connection.
@@ -93,7 +96,7 @@ const startServer = async () => {
     })
 }
 
-if (!process.env.VERCEL) {
+if (!process.env.VERCEL && !process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
     startServer().catch((error) => {
         console.error('Server startup failed:', error.message)
         process.exit(1)

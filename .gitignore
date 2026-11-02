@@ -11,5 +11,10 @@
 **/*.log
 .vscode/
 .idea/
+
+# Local deployment tooling state
+.netlify/
+.vercel/
+
 # Ignore uploaded files
 backend/uploads/
