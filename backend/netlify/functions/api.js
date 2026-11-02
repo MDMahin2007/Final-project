@@ -17,9 +17,15 @@ export const handler = async (event, context) => {
         : incomingPath
     const requestUrl = new URL(event.rawUrl || `https://${event.headers?.host || 'localhost'}${incomingPath}`)
     requestUrl.pathname = requestPath
-    const headers = event.headers || {}
-    const forwardedIp = headers['x-nf-client-connection-ip'] || headers['X-Nf-Client-Connection-Ip']
-    const sourceIp = forwardedIp || headers['x-forwarded-for']?.split(',')[0]?.trim() || '127.0.0.1'
+    const headers = { ...(event.headers || {}) }
+    const getHeader = (name) => Object.entries(headers).find(([key]) => key.toLowerCase() === name)?.[1]
+    const sourceIp = getHeader('x-nf-client-connection-ip')
+        || event.requestContext?.identity?.sourceIp
+        || event.requestContext?.http?.sourceIp
+        || '127.0.0.1'
+    for (const key of Object.keys(headers)) {
+        if (key.toLowerCase() === 'x-forwarded-for') delete headers[key]
+    }
 
     return expressHandler({
         ...event,

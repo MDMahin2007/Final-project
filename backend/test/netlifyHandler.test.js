@@ -39,3 +39,23 @@ test('Netlify OPTIONS preflight allows the deployed Vercel frontend', async () =
     assert.equal(response.headers['access-control-allow-origin'], 'https://smart-campus-clearance.vercel.app')
     assert.match(response.headers['access-control-allow-methods'], /POST/)
 })
+
+test('Netlify forwarded headers do not trigger Express proxy validation', async () => {
+    const response = await handler({
+        path: '/.netlify/functions/api/api/health',
+        rawUrl: 'https://smart-campus-clearance.netlify.app/.netlify/functions/api/api/health',
+        httpMethod: 'GET',
+        headers: {
+            host: 'smart-campus-clearance.netlify.app',
+            'x-nf-client-connection-ip': '203.0.113.10',
+            'x-forwarded-for': '198.51.100.99, 10.0.0.2',
+        },
+        queryStringParameters: {},
+    }, {})
+
+    assert.equal(response.statusCode, 200)
+    assert.deepEqual(JSON.parse(response.body), {
+        success: true,
+        message: 'ClearPath API is healthy',
+    })
+})
