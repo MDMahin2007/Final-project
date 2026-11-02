@@ -11,6 +11,7 @@ const editableFields = [
   ["phone", "Phone number", "tel", "e.g. +880 1XXXXXXXXX"],
   ["program", "Program", "text", "e.g. BSc in Computer Science"],
   ["session", "Session", "text", "e.g. 2022-2026"],
+  ["semester", "Semester", "text", "e.g. 8th semester"],
 ];
 
 const Profile = () => {
@@ -19,6 +20,7 @@ const Profile = () => {
     phone: user?.phone || "",
     program: user?.program || "",
     session: user?.session || "",
+    semester: user?.semester || "",
   });
   const [saving, setSaving] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -37,6 +39,7 @@ const Profile = () => {
           phone: profile.phone || "",
           program: profile.program || "",
           session: profile.session || "",
+          semester: profile.semester || "",
         });
       } catch (err) {
         setError(
@@ -61,6 +64,7 @@ const Profile = () => {
       phone: profile?.phone || "",
       program: profile?.program || "",
       session: profile?.session || "",
+      semester: profile?.semester || "",
     });
   };
 
@@ -85,6 +89,7 @@ const Profile = () => {
         phone: form.phone.trim(),
         program: form.program.trim(),
         session: form.session.trim(),
+        semester: form.semester.trim(),
       });
       const savedUser = response.data.data.user;
       setFormFromUser(savedUser);

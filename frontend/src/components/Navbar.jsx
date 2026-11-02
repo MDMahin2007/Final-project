@@ -11,6 +11,7 @@ import {
   HiOutlineChartBar,
   HiOutlineDocumentAdd,
 } from "react-icons/hi";
+import { getRoleHome, isSuperAdmin } from "../utils/roles.js";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -39,6 +40,11 @@ const Navbar = () => {
       icon: HiOutlineDocumentAdd,
     },
     {
+      to: "/student/requests",
+      label: "My Requests",
+      icon: HiOutlineClipboardList,
+    },
+    {
       to: "/student/certificate",
       label: "Certificate",
       icon: HiOutlineClipboardList,
@@ -61,6 +67,8 @@ const Navbar = () => {
       label: "Manage Requests",
       icon: HiOutlineClipboardList,
     },
+    { to: "/admin/offices", label: "Offices", icon: HiOutlineUserCircle },
+    { to: "/admin/staff", label: "Office Staff", icon: HiOutlineUser },
     {
       to: "/admin/reports",
       label: "Reports",
@@ -68,17 +76,23 @@ const Navbar = () => {
     },
   ];
 
+  const staffLinks = [
+    { to: "/staff/requests", label: "Assigned Requests", icon: HiOutlineClipboardList },
+  ];
+
   const links = user
-    ? user.role === "admin"
+    ? isSuperAdmin(user.role)
       ? adminLinks
-      : studentLinks
+      : user.role === "officeStaff"
+        ? staffLinks
+        : studentLinks
     : publicLinks;
 
   return (
     <nav className="border-b border-slate-800 bg-slate-950 px-4 py-4 text-slate-300">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
         <Link
-          to="/"
+          to={user ? getRoleHome(user.role) : "/"}
           className="flex items-center gap-2 text-xl font-semibold tracking-tight text-white"
         >
           <HiHome className="h-6 w-6" />

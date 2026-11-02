@@ -2,15 +2,22 @@ import mongoose from 'mongoose'
 
 let connectionPromise
 
-const getMongoUri = () => {
+export const getMongoUri = () => {
     const configuredUri = process.env.MONGODB_URI?.trim() || process.env.MONGO_URI?.trim()
     if (configuredUri && !configuredUri.startsWith('YOUR_')) {
-        return configuredUri
+        const database = process.env.DATABASE_NAME?.trim()
+        if (!database) return configuredUri
+
+        const parsedUri = new URL(configuredUri)
+        if (!parsedUri.pathname || parsedUri.pathname === '/') {
+            parsedUri.pathname = `/${database}`
+        }
+        return parsedUri.toString()
     }
 
     const username = process.env.MONGO_USER?.trim()
     const password = process.env.MONGO_PASSWORD
-    const database = process.env.DB_NAME?.trim() || 'clearpath'
+    const database = process.env.DATABASE_NAME?.trim() || process.env.DB_NAME?.trim() || 'clearpath'
     const host = process.env.MONGO_HOST?.trim() || '127.0.0.1:27017'
 
     if (!username || !password) {

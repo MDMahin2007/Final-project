@@ -12,8 +12,4 @@
 .vscode/
 .idea/
 # Ignore uploaded files
-git rm -r --cached backend/uploads
-git add .gitignore backend/controllers/authController.js frontend/src/pages/Login.jsx frontend/src/pages/Register.jsx
-git rm -r --cached backend/uploads
-git commit -m "fix: close admin-registration security hole, stop committing uploads, fix login/register theme"
-git push
+backend/uploads/

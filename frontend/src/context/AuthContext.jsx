@@ -72,8 +72,8 @@ export const AuthProvider = ({ children }) => {
       window.removeEventListener("clearpath:unauthorized", clearSession);
   }, [clearSession]);
 
-  const login = async (email, password) => {
-    const response = await api.post("/auth/login", { email, password });
+  const login = async (identifier, password) => {
+    const response = await api.post("/auth/login", { identifier, password });
     const { token: authToken, user: userData } = response.data.data;
     saveSession(authToken, userData);
     return userData;
@@ -84,16 +84,6 @@ export const AuthProvider = ({ children }) => {
     const { token: authToken, user: userData } = response.data.data;
     saveSession(authToken, userData);
     return userData;
-  };
-
-  const registerAdmin = async (formData) => {
-    const response = await api.post("/auth/register-admin", formData);
-    const { token: authToken, user: userData } = response.data.data || {};
-    if (authToken && userData) {
-      saveSession(authToken, userData);
-      return userData;
-    }
-    return response.data.data.user;
   };
 
   const logout = () => {
@@ -110,7 +100,6 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         register,
-        registerAdmin,
         updateUser,
       }}
     >

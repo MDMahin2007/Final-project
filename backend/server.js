@@ -2,19 +2,31 @@ import express from 'express'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
 import cors from 'cors'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
-import { getMe, loginUser } from './controllers/authController.js'
+import { getMe } from './controllers/authController.js'
 import { protect } from './middleware/authMiddleware.js'
-import clearanceRoutes from './routes/clearanceRoutes.js'
+import requestRoutes from './routes/requestRoutes.js'
+import staffRoutes from './routes/staffRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 import { ensureUploadDirectories, uploadsDirectory } from './middleware/uploadMiddleware.js'
 
 dotenv.config({ path: fileURLToPath(new URL('.env', import.meta.url)) })
 const app = express()
 
-app.use(express.json())
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
+app.use(express.json({ limit: '1mb' }))
 app.use('/uploads', express.static(uploadsDirectory))
+app.use('/api', rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 300,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+}))
 
 const allowedOrigins = [
     process.env.CLIENT_URL,
@@ -56,9 +68,11 @@ app.use('/api', async (_req, _res, next) => {
 })
 
 app.use('/api/auth', authRoutes)
-app.post('/api/login', loginUser)
 app.get('/api/auth/status', protect, getMe)
-app.use('/api/clearance', clearanceRoutes)
+app.use('/api/requests', requestRoutes)
+app.use('/api/staff', staffRoutes)
+app.use('/api/admin', adminRoutes)
+app.use('/api/admin/reports', reportRoutes)
 
 app.use(notFound)
 app.use(errorHandler)

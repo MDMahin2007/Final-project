@@ -13,7 +13,7 @@ const features = [
   },
   {
     title: "Admin Approval System",
-    description: "Administrators can review and update requests quickly.",
+    description: "Each office reviews only the requests assigned to its staff.",
   },
   {
     title: "Paperless Process",
@@ -41,8 +41,8 @@ const Home = () => {
               Smart Campus Clearance & Approval System
             </h1>
             <p className="mt-6 max-w-xl text-slate-600">
-              Paperless • Fast • Transparent. Centralize student clearance
-              requests and admin approvals in a modern campus system.
+              Paperless, clear, and trackable. One student request moves through
+              Library, Accounts, Department, and every configured campus office.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -104,10 +104,10 @@ const Home = () => {
                 02
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900">Admin Reviews</h3>
+                  <h3 className="font-semibold text-slate-900">Offices Review</h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Admins review requests and decide whether to approve or
-                  reject.
+                  Assigned staff approve or reject their office step with a
+                  reason and timestamp.
                 </p>
               </div>
             </div>
@@ -118,8 +118,8 @@ const Home = () => {
               <div>
                 <h3 className="font-semibold text-slate-900">Get Approval</h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Students receive status updates and can track remarks
-                  instantly.
+                  Students follow the office timeline and see the final
+                  cleared or rejected status.
                 </p>
               </div>
             </div>

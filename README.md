@@ -1,133 +1,141 @@
 # ClearPath
 
-ClearPath is a MERN smart campus clearance and approval system. Students submit one immutable clearance request; Library, Hostel, Accounts, and Department staff decisions are tracked independently by an administrator.
+ClearPath digitizes campus clearance as a step-by-step workflow. Students submit one request; Library, Accounts, Department, and any active configured offices review it in order. Students can follow each decision and its audit timeline.
 
-## Features
+## Roles
 
-- JWT authentication with bcrypt password hashing and student/admin roles. Sessions are revalidated through `/api/auth/me` after a refresh.
-- A student dashboard that creates one request and shows a live department-by-department tracker.
-- An admin workspace with request search, pending/completed/rejected filters, expandable request details, and individual item approvals/rejections with optional remarks.
-- Automatic overall status: `completed` when all items are approved, `rejected` when any item is rejected, otherwise `pending`.
-- Students can resubmit only the rejected departments; already approved items stay approved.
-- A printable clearance certificate is available after every department has approved the request.
-- Students can maintain optional phone, program, and session details from their protected profile page.
-- Students can attach PDF clearance documents and update a JPG/PNG profile picture.
-- Administrators can review derived clearance reports and export the current request data as CSV.
-- Responsive React/Tailwind UI, loading states, validation, centralized API errors, and toast notifications.
+- `student`: register, sign in with student ID or email, create requests, attach optional PDFs, view timelines, and cancel before review begins.
+- `officeStaff`: sign in and review only the next actionable request assigned to their office. Rejections require a reason.
+- `superAdmin`: configure offices and workflow order, create office staff accounts, monitor requests, and view reports.
 
-## Structure
+The legacy `admin` role remains accepted for existing accounts. The seed script promotes the configured `ADMIN_EMAIL` to `superAdmin`.
 
-backend/
-  config/             MongoDB connection
-  controllers/        Authentication and clearance business logic
-  middleware/         JWT/role protection and error responses
-  models/             User and ClearanceRequest schemas
-  routes/             REST API routes
-  seed.js             Initial admin account seed script
-frontend/
-  src/components/     Reusable UI pieces and clearance tracker
-  src/context/        Persisted authentication context
-  src/pages/          Public, student, and admin pages
-  src/services/       Axios client and JWT attachment
+## Workflow
 
-## Setup
+1. The super-admin configures active offices and their order. The seed script creates Library, Accounts, and Department if they do not exist.
+2. A student submits a purpose and optional PDF attachments. The API creates one `clearanceRequests` record and one pending `approvals` record for each active office.
+3. Only the next office can decide. Each decision stores the staff member, remarks, and timestamp and appends an audit event.
+4. Any rejection makes the overall request `REJECTED`; all approvals make it `CLEARED`; partial progress is `IN_PROGRESS`; no decisions is `PENDING`.
+5. Students may cancel only before an office starts reviewing. A rejected or cleared request is terminal; a student may submit another request afterward.
 
-1. Install MongoDB locally or create a MongoDB Atlas database.
-2. Copy `backend/.env.example` to `backend/.env` and set a real `MONGO_URI` and long `JWT_SECRET` (at least 32 characters). If using separate MongoDB values, set `MONGO_USER`, `MONGO_PASSWORD`, `MONGO_HOST`, `DB_NAME`, and optionally `MONGO_AUTH_SOURCE` instead.
-3. Copy `frontend/.env.example` to `frontend/.env`.
-4. Install dependencies and start each app in separate terminals:
+## Stack And Structure
+
+- Frontend: React, Vite, React Router, Axios, Tailwind CSS, React Icons, React Hot Toast.
+- Backend: Node.js, Express, MongoDB, Mongoose, JWT, bcryptjs, Helmet, express-rate-limit, Multer.
+- `backend/models/`: users, offices, clearance requests, approvals, and audit events.
+- `backend/controllers/`: authentication, student requests, office decisions, administration, and aggregation reports.
+- `frontend/src/pages/`: public, student, office-staff, and super-admin workspaces.
+
+## Configure
+
+Use Node.js 20.19+ (or 22.12+) and MongoDB Atlas or a local MongoDB server. Copy the example environment files, then replace the placeholders:
 
 ```powershell
-cd backend
-npm install
-npm run dev
+Copy-Item backend/.env.example backend/.env
+Copy-Item frontend/.env.example frontend/.env
 ```
 
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-The API runs on `http://localhost:5000`; Vite normally runs on `http://localhost:5173`.
-
-## Environment variables
-
-Backend (`backend/.env`):
+Backend `backend/.env`:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/clearpath
-# Or use component-based values; passwords are URI-encoded by the backend.
-# MONGO_USER=
-# MONGO_PASSWORD=
-# MONGO_HOST=127.0.0.1:27017
-# DB_NAME=clearpath
-# MONGO_AUTH_SOURCE=admin
-JWT_SECRET=replace_with_a_random_secret_at_least_32_characters_long
+MONGODB_URI=mongodb+srv://<db_user>:<db_password>@<cluster-host>/
+DATABASE_NAME=clearpath_campus_clearance
+JWT_SECRET=<random-secret-at-least-32-characters>
 CLIENT_URL=http://localhost:5173
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=replace_with_a_secure_password
+ADMIN_PASSWORD=<private-password-at-least-8-characters>
 ```
 
-Frontend (`frontend/.env`):
+If the MongoDB URI has no database name in its path, `DATABASE_NAME` is added automatically. If the URI already names a database, that explicit path is preserved. `MONGO_URI` remains accepted as a compatibility alias. For local MongoDB, set `MONGODB_URI=mongodb://127.0.0.1:27017/clearpath_campus_clearance`. Never commit `.env` or paste database credentials into source code.
+
+Frontend `frontend/.env`:
 
 ```env
-VITE_API_URL=https://final-project-e1pzkxhy3-saruf.vercel.app/api
+VITE_API_URL=/api
 ```
 
-Local development uses Vite's `/api` proxy to `http://localhost:5000`. For production, set `VITE_API_URL` to the deployed backend URL ending in `/api`.
+Vite proxies `/api` and `/uploads` to `http://localhost:5000` in development. For separate production hosts, set `VITE_API_URL` to the backend URL ending in `/api`; set backend `CLIENT_URL` to the deployed frontend origin.
 
-## Create the admin account
+## Install And Run
 
-After configuring the backend environment, including `ADMIN_EMAIL` and `ADMIN_PASSWORD`, run:
+Install dependencies from the repository root:
 
 ```powershell
-cd backend
-npm run seed
+npm --prefix backend install
+npm --prefix frontend install
 ```
 
-This creates the configured `ADMIN_EMAIL` account if it does not already exist. For local development the example values are `admin@example.com` / `AdminPass123`. `npm run seed:reset` deletes all users and clearance requests before recreating that account; use it only for local development.
+Seed the initial super-admin and default offices. This is safe to rerun and does not reset existing users or requests:
+
+```powershell
+npm --prefix backend run seed
+```
+
+Start the backend and frontend in separate terminals:
+
+```powershell
+npm --prefix backend run dev
+```
+
+```powershell
+npm --prefix frontend run dev
+```
+
+Open `http://localhost:5173`. Sign in as super-admin with the private `ADMIN_EMAIL` and `ADMIN_PASSWORD` values from `backend/.env`. Register a student account, then use the super-admin workspace to create an office staff account for each office. There are no hard-coded demo passwords.
+
+`npm --prefix backend run seed:reset` deletes all users, offices, requests, approvals, and audit events in the configured database before seeding again. Use it only on a disposable development database.
+
+To add optional demo accounts and representative pending, in-progress, and rejected requests, set a private `DEMO_ACCOUNT_PASSWORD` of at least 12 characters in `backend/.env`, then run:
+
+```powershell
+npm --prefix backend run seed:demo
+```
+
+The demo users are `demo.pending@clearpath.edu`, `demo.progress@clearpath.edu`, `demo.rejected@clearpath.edu`, `demo.library@clearpath.edu`, `demo.accounts@clearpath.edu`, and `demo.department@clearpath.edu`. They all use the configured `DEMO_ACCOUNT_PASSWORD`. This is opt-in so normal seeding never creates sample accounts in a shared database.
 
 ## API
 
-| Method | Endpoint | Access | Purpose |
-| --- | --- | --- | --- |
-| POST | `/api/auth/register` | Public | Register a student and receive JWT |
-| POST | `/api/auth/register-admin` | Admin | Register another administrator without replacing the current session |
-| POST | `/api/auth/login` | Public | Log in and receive JWT |
-| GET | `/api/auth/me` | Authenticated | Restore and validate the current session |
-| PATCH | `/api/auth/me` | Student | Update optional phone, program, and session fields |
-| POST | `/api/auth/me/avatar` | Authenticated | Upload or replace the current user profile picture |
-| POST | `/api/clearance` | Student | Create the four default clearance items |
-| GET | `/api/clearance/my` | Student | Get the student’s request, or `null` |
-| POST | `/api/clearance/my/resubmit` | Student | Reset rejected items to pending |
-| GET | `/api/health` | Public | Confirm the API is running |
-| GET | `/api/clearance?status=pending` | Admin | List requests, optionally filtered |
-| PATCH | `/api/clearance/:requestId/item/:itemId` | Admin | Update an item with `approved` or `rejected` and optional remarks |
-| POST | `/api/clearance/documents` | Student | Attach up to 6 PDF documents to the student request |
+All endpoints are under `/api`.
 
-`/api/login` and `/api/auth/status` are also available as compatibility aliases for clients using the older authentication paths.
+| Method      | Endpoint                               | Access                             | Purpose                                                      |
+| ----------- | -------------------------------------- | ---------------------------------- | ------------------------------------------------------------ |
+| POST        | `/auth/register-student`               | Public                             | Create a student account                                     |
+| POST        | `/auth/login`                          | Public                             | Sign in with `identifier` (student ID or email) and password |
+| GET / PATCH | `/auth/me`                             | Authenticated / student            | Read session or update profile                               |
+| POST        | `/requests`                            | Student                            | Create a clearance request and office approvals              |
+| GET         | `/requests/my`                         | Student                            | List own requests with approval timelines                    |
+| GET         | `/requests/:id`                        | Owner, assigned staff, super-admin | Read request details and audit history                       |
+| PATCH       | `/requests/:id/cancel`                 | Student owner                      | Cancel before review begins                                  |
+| POST        | `/requests/:id/documents`              | Student owner                      | Upload up to six optional PDF files                          |
+| GET         | `/staff/requests?status=PENDING`       | Office staff                       | View requests assigned to the staff member's office          |
+| PATCH       | `/staff/approvals/:approvalId/approve` | Assigned office staff              | Approve the current office step                              |
+| PATCH       | `/staff/approvals/:approvalId/reject`  | Assigned office staff              | Reject with a required reason                                |
+| GET / POST  | `/admin/offices`                       | Super-admin                        | List or create offices                                       |
+| PATCH       | `/admin/offices/:id`                   | Super-admin                        | Change office order or active state                          |
+| GET / POST  | `/admin/staff`                         | Super-admin                        | List or create assigned office staff                         |
+| GET         | `/admin/requests`                      | Super-admin                        | Filter requests by status, office, and date                  |
+| GET         | `/admin/reports/summary`               | Super-admin                        | Aggregated counts, backlog, and average decision time        |
 
-The first administrator must be created with `npm run seed`. After signing in, an administrator can create additional administrator accounts at `/admin/register`.
-
-Uploaded documents and profile pictures are stored on local disk under `backend/uploads/` and served from `/uploads`. This works for local development and hosting with persistent disks. Ephemeral hosting plans, including some free tiers, may lose uploaded files on redeploy; use persistent storage for production uploads.
-
-## Available checks
+## Checks
 
 ```powershell
-cd frontend
-npm run lint
-npm run build
+npm --prefix backend test
+npm --prefix frontend run lint
+npm --prefix frontend run build
 ```
 
-The backend has no test framework configured. Its production startup validates `JWT_SECRET`, connects to MongoDB before listening, and exits with a safe error if either requirement fails. Use `npm start` for a startup check or `npm run dev` during development.
+Backend tests cover request status calculation, sequential approval readiness, and MongoDB URI database-name behavior.
 
-## Deployment notes
+## Viva Notes
 
-- Deploy `frontend` as a Vite site on Vercel and set `VITE_API_URL` to the deployed backend URL ending in `/api`.
-- Deploy `backend` as a Node service on Render (or another Node host), using `npm start` and setting `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in the host environment.
-- For Netlify frontend deployment, use build command `npm run build`, publish directory `dist`, and set `VITE_API_URL` to the deployed Vercel backend URL ending in `/api`.
-- For Vercel backend deployment, deploy the `backend/` directory and set `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_SECRET_KEY`. Set `CLIENT_URL` to the Netlify site URL.
-- Use a MongoDB Atlas connection string for `MONGO_URI`, restrict Atlas network access appropriately, and rotate any secret that was previously committed.
-- `frontend/vercel.json` provides the SPA fallback needed for direct navigation to React routes.
+- Authentication verifies credentials and returns a signed JWT; authorization checks the role and, for office staff, the assigned office.
+- Each approval is a separate document with a unique `(requestId, officeId)` index. `stepOrder` defines the sequential review path.
+- The overall status is derived from all office decisions: any rejection wins, all approvals clear the request, partial approvals mean in progress.
+- Cancellation is guarded on the server and only allowed while the request is still pending and no office has decided.
+- Reports use MongoDB aggregation with `$lookup`, `$group`, and `$avg` for office workload and decision duration.
+- Audit events record who created, approved, rejected, or cancelled a request and when.
+
+## Deployment Notes
+
+Uploaded PDFs and avatars use local disk under `backend/uploads/`, which is suitable for local development and hosts with persistent storage. On ephemeral/serverless hosts, use persistent object storage before relying on uploaded files in production. Keep MongoDB network access restricted and rotate any credential that has been exposed.

@@ -1,244 +1,71 @@
-import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 import { HiDownload } from "react-icons/hi";
+import toast from "react-hot-toast";
 import api from "../../services/api.js";
 import DashboardCard from "../../components/DashboardCard.jsx";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
-import StatusBadge from "../../components/StatusBadge.jsx";
 
-const escapeCsvValue = (value) =>
-  `"${String(value ?? "").replaceAll('"', '""')}"`;
+const csvValue = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
 
 const Reports = () => {
-  const [requests, setRequests] = useState([]);
+  const [offices, setOffices] = useState([]);
+  const [officeId, setOfficeId] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(async () => {
-      try {
-        const response = await api.get("/clearance");
-        setRequests(response.data.data || []);
-      } catch (err) {
-        setError(
-          err.response?.data?.message || "Unable to load clearance reports.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }, 0);
-    return () => window.clearTimeout(timeoutId);
+    api.get("/admin/offices").then((response) => setOffices(response.data.data || [])).catch(() => {});
   }, []);
 
-  const summary = useMemo(() => {
-    const total = requests.length;
-    const completed = requests.filter(
-      (request) => request.overallStatus === "completed",
-    ).length;
-    return {
-      total,
-      approved: completed,
-      pending: requests.filter((request) => request.overallStatus === "pending")
-        .length,
-      rejected: requests.filter(
-        (request) => request.overallStatus === "rejected",
-      ).length,
-      completionRate: total ? Math.round((completed / total) * 100) : 0,
-    };
-  }, [requests]);
+  useEffect(() => {
+    let active = true;
+    const params = {};
+    if (officeId) params.officeId = officeId;
+    if (dateFrom) params.dateFrom = dateFrom;
+    if (dateTo) params.dateTo = dateTo;
+    api.get("/admin/reports/summary", { params })
+      .then((response) => active && setSummary(response.data.data))
+      .catch((requestError) => active && setError(requestError.response?.data?.message || "Unable to load reports."))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [officeId, dateFrom, dateTo]);
 
-  const departmentBreakdown = useMemo(() => {
-    const departments = [
-      ...new Set(
-        requests.flatMap(
-          (request) => request.items?.map((item) => item.department) || [],
-        ),
-      ),
-    ];
-    return departments.map((department) => {
-      const items = requests.flatMap(
-        (request) =>
-          request.items?.filter((item) => item.department === department) || [],
-      );
-      return {
-        department,
-        approved: items.filter((item) => item.status === "approved").length,
-        pending: items.filter((item) => item.status === "pending").length,
-        rejected: items.filter((item) => item.status === "rejected").length,
-        total: items.length,
-      };
-    });
-  }, [requests]);
-
-  const exportCsv = () => {
-    const headers = [
-      "Request ID",
-      "Student name",
-      "Student ID",
-      "Student email",
-      "Student department",
-      "Overall status",
-      "Clearance department",
-      "Item status",
-      "Remarks",
-      "Last updated",
-    ];
-    const rows = requests.flatMap(
-      (request) =>
-        request.items?.map((item) => [
-          request._id,
-          request.student?.name,
-          request.student?.studentId,
-          request.student?.email,
-          request.student?.department,
-          request.overallStatus,
-          item.department,
-          item.status,
-          item.remarks,
-          item.updatedAt ? new Date(item.updatedAt).toISOString() : "",
-        ]) || [],
-    );
-    const csv = [headers, ...rows]
-      .map((row) => row.map(escapeCsvValue).join(","))
-      .join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `clearpath-clearance-report-${new Date().toISOString().slice(0, 10)}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-    toast.success("Clearance report exported.");
+  const exportCsv = async () => {
+    try {
+      const params = {};
+      if (officeId) params.officeId = officeId;
+      if (dateFrom) params.dateFrom = dateFrom;
+      if (dateTo) params.dateTo = dateTo;
+      const response = await api.get("/admin/requests", { params });
+      const headers = ["Request ID", "Student", "Student ID", "Purpose", "Overall status", "Office", "Approval status", "Remarks", "Submitted", "Decided at"];
+      const rows = response.data.data.flatMap((request) => (request.approvals || []).map((approval) => [request._id, request.studentUserId?.name, request.studentUserId?.studentId, request.purpose, request.overallStatus, approval.officeId?.name, approval.status, approval.remarks, request.submittedAt, approval.decidedAt]));
+      const content = [headers, ...rows].map((row) => row.map(csvValue).join(",")).join("\n");
+      const url = URL.createObjectURL(new Blob([content], { type: "text/csv;charset=utf-8" }));
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `clearpath-report-${new Date().toISOString().slice(0, 10)}.csv`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      toast.success("Report exported.");
+    } catch (requestError) {
+      toast.error(requestError.response?.data?.message || "Unable to export report.");
+    }
   };
 
-  if (loading) return <LoadingSpinner />;
-
   return (
-    <div className="space-y-6">
-      <section className="rounded-[2rem] bg-white p-8 shadow-sm">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-              Administration
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold text-slate-900">
-              Clearance reports
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-600">
-              Review campus-wide clearance progress from the current request
-              records.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={exportCsv}
-            disabled={!requests.length}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <HiDownload className="h-5 w-5" />
-            Export CSV
-          </button>
-        </div>
-      </section>
-      {error && (
-        <div className="rounded-3xl bg-red-50 p-5 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      {!requests.length ? (
-        <section className="rounded-[2rem] bg-white p-8 text-center text-sm text-slate-600 shadow-sm">
-          No clearance applications found.
+    <div className="space-y-7">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-5"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Super admin</p><h1 className="mt-2 text-3xl font-semibold text-slate-900">Clearance reports</h1><p className="mt-2 text-sm text-slate-600">Request volumes, office backlog, and average decision time.</p></div><button type="button" onClick={exportCsv} disabled={loading || !summary?.total} className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 disabled:opacity-40"><HiDownload />Export CSV</button></header>
+      <section className="grid gap-3 sm:grid-cols-3"><div><label htmlFor="report-office" className="block text-xs font-semibold text-slate-600">Office</label><select id="report-office" value={officeId} onChange={(event) => setOfficeId(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"><option value="">All offices</option>{offices.map((office) => <option key={office._id} value={office._id}>{office.name}</option>)}</select></div><div><label htmlFor="report-from" className="block text-xs font-semibold text-slate-600">Submitted from</label><input id="report-from" type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm" /></div><div><label htmlFor="report-to" className="block text-xs font-semibold text-slate-600">Submitted to</label><input id="report-to" type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm" /></div></section>
+      {error && <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {loading ? <LoadingSpinner /> : summary && <>
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><DashboardCard title="Total requests" value={summary.total} /><DashboardCard title="Pending" value={summary.pending} /><DashboardCard title="In progress" value={summary.inProgress} /><DashboardCard title="Cleared" value={summary.cleared} /><DashboardCard title="Rejected" value={summary.rejected} /></section>
+        <section className="grid gap-8 border-t border-slate-200 pt-6 lg:grid-cols-2"><div><h2 className="text-xl font-semibold text-slate-900">Office pending backlog</h2>{summary.officeBacklog.length ? <div className="mt-3 divide-y divide-slate-200 border-y border-slate-200">{summary.officeBacklog.map((office) => <div key={office.officeId} className="flex items-center justify-between gap-3 py-4"><div><p className="font-semibold text-slate-800">{office.name}</p><p className="text-xs text-slate-500">{office.code}</p></div><span className="text-2xl font-semibold text-amber-700">{office.pending}</span></div>)}</div> : <p className="mt-3 text-sm text-slate-500">No pending office approvals.</p>}</div>
+          <div><h2 className="text-xl font-semibold text-slate-900">Average decision time</h2><p className="mt-1 text-sm text-slate-500">Calculated from approval creation to staff decision.</p>{summary.averageApprovalTime.length ? <div className="mt-3 divide-y divide-slate-200 border-y border-slate-200">{summary.averageApprovalTime.map((office) => <div key={office.officeId} className="flex items-center justify-between gap-3 py-4"><div><p className="font-semibold text-slate-800">{office.name}</p><p className="text-xs text-slate-500">{office.decisions} decisions</p></div><span className="text-sm font-semibold text-slate-700">{office.averageHours} h</span></div>)}</div> : <p className="mt-3 text-sm text-slate-500">Decision timing appears after offices complete reviews.</p>}</div>
         </section>
-      ) : (
-        <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <DashboardCard title="Total applications" value={summary.total} />
-            <DashboardCard title="Approved" value={summary.approved}>
-              <StatusBadge status="approved" />
-            </DashboardCard>
-            <DashboardCard title="Pending" value={summary.pending}>
-              <StatusBadge status="pending" />
-            </DashboardCard>
-            <DashboardCard title="Rejected" value={summary.rejected}>
-              <StatusBadge status="rejected" />
-            </DashboardCard>
-          </div>
-          <section className="rounded-[2rem] bg-white p-6 shadow-sm">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">
-                  Completion rate
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Requests approved by every department.
-                </p>
-              </div>
-              <span className="text-2xl font-semibold text-primary">
-                {summary.completionRate}%
-              </span>
-            </div>
-            <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-primary transition-all"
-                style={{ width: `${summary.completionRate}%` }}
-              />
-            </div>
-          </section>
-          <section className="rounded-[2rem] bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900">
-              Department breakdown
-            </h2>
-            <div className="mt-4 space-y-5">
-              {departmentBreakdown.map((item) => (
-                <div key={item.department}>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="font-semibold text-slate-900">
-                      {item.department}
-                    </h3>
-                    <span className="text-xs text-slate-500">
-                      {item.total} applications
-                    </span>
-                  </div>
-                  <div className="mt-3 flex h-3 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="bg-emerald-500"
-                      style={{
-                        width: `${(item.approved / item.total) * 100}%`,
-                      }}
-                    />
-                    <div
-                      className="bg-amber-400"
-                      style={{ width: `${(item.pending / item.total) * 100}%` }}
-                    />
-                    <div
-                      className="bg-red-500"
-                      style={{
-                        width: `${(item.rejected / item.total) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-500">
-                    <span>
-                      <strong className="text-emerald-600">
-                        {item.approved}
-                      </strong>{" "}
-                      approved
-                    </span>
-                    <span>
-                      <strong className="text-amber-600">{item.pending}</strong>{" "}
-                      pending
-                    </span>
-                    <span>
-                      <strong className="text-red-600">{item.rejected}</strong>{" "}
-                      rejected
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+      </>}
     </div>
   );
 };

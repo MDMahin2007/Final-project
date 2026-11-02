@@ -1,9 +1,4 @@
-const deployedApiUrl = "https://final-project-e1pzkxhy3-saruf.vercel.app/api";
-const apiBaseUrl =
-  import.meta.env.VITE_API_URL ||
-  (window.location.hostname === "smartcumpas2.netlify.app"
-    ? deployedApiUrl
-    : "/api");
+const apiBaseUrl = import.meta.env.VITE_API_URL || "/api";
 
 export const getMediaUrl = (relativeUrl) => {
   if (!relativeUrl) return "";

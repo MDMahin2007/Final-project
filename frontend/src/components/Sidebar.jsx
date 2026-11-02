@@ -8,12 +8,14 @@ import {
   HiOutlineChartBar,
   HiOutlineDocumentAdd,
   HiOutlineLogout,
+  HiOfficeBuilding,
+  HiOutlineUser,
 } from "react-icons/hi";
 
 const Sidebar = ({ role }) => {
   const { logout } = useContext(AuthContext);
   const items =
-    role === "admin"
+    role === "admin" || role === "superAdmin"
       ? [
           {
             to: "/admin/dashboard",
@@ -25,13 +27,23 @@ const Sidebar = ({ role }) => {
             label: "Manage Requests",
             icon: HiOutlineClipboardList,
           },
+          { to: "/admin/offices", label: "Offices", icon: HiOfficeBuilding },
+          { to: "/admin/staff", label: "Office Staff", icon: HiOutlineUser },
           {
             to: "/admin/reports",
             label: "Reports",
             icon: HiOutlineChartBar,
           },
         ]
-      : [
+      : role === "officeStaff"
+        ? [
+            {
+              to: "/staff/requests",
+              label: "Assigned Requests",
+              icon: HiOutlineClipboardList,
+            },
+          ]
+        : [
           {
             to: "/student/dashboard",
             label: "Dashboard",
@@ -41,6 +53,11 @@ const Sidebar = ({ role }) => {
             to: "/student/apply",
             label: "Apply for Clearance",
             icon: HiOutlineDocumentAdd,
+          },
+          {
+            to: "/student/requests",
+            label: "My Requests",
+            icon: HiOutlineClipboardList,
           },
           {
             to: "/student/certificate",

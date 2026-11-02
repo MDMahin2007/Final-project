@@ -3,167 +3,32 @@ import { Link } from "react-router-dom";
 import api from "../../services/api.js";
 import DashboardCard from "../../components/DashboardCard.jsx";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
-import StatusBadge from "../../components/StatusBadge.jsx";
 
 const AdminDashboard = () => {
-  const [requests, setRequests] = useState([]);
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadDashboard = async () => {
-    try {
-      const response = await api.get("/clearance");
-      setRequests(response.data.data);
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Unable to load the admin dashboard.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void loadDashboard();
-    }, 0);
-    return () => window.clearTimeout(timeoutId);
+    let active = true;
+    api.get("/admin/reports/summary")
+      .then((response) => active && setSummary(response.data.data))
+      .catch((requestError) => active && setError(requestError.response?.data?.message || "Unable to load the dashboard."))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
   }, []);
 
   if (loading) return <LoadingSpinner />;
-  const pending = requests.filter(
-    (request) => request.overallStatus === "pending",
-  ).length;
-  const completed = requests.filter(
-    (request) => request.overallStatus === "completed",
-  ).length;
-  const rejected = requests.filter(
-    (request) => request.overallStatus === "rejected",
-  ).length;
-  const departmentBreakdown = [
-    "Library",
-    "Hostel",
-    "Accounts",
-    "Department",
-  ].map((department) => ({
-    department,
-    approved: requests.filter((request) =>
-      request.items?.some(
-        (item) => item.department === department && item.status === "approved",
-      ),
-    ).length,
-    pending: requests.filter((request) =>
-      request.items?.some(
-        (item) => item.department === department && item.status === "pending",
-      ),
-    ).length,
-    rejected: requests.filter((request) =>
-      request.items?.some(
-        (item) => item.department === department && item.status === "rejected",
-      ),
-    ).length,
-  }));
-
   return (
-    <div className="space-y-6">
-      <section className="rounded-[2rem] bg-white p-8 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-          Administration
-        </p>
-        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold text-slate-900">
-              Clearance overview
-            </h1>
-            <p className="mt-2 text-sm text-slate-600">
-              Review outstanding department approvals and monitor campus
-              clearance progress.
-            </p>
-          </div>
-          <Link
-            to="/admin/requests"
-            className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-sky-600"
-          >
-            Manage requests
-          </Link>
-        </div>
-      </section>
-      {error && (
-        <div className="rounded-3xl bg-red-50 p-5 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardCard title="Total requests" value={requests.length} />
-        <DashboardCard title="Awaiting review" value={pending} />
-        <DashboardCard title="Completed" value={completed} />
-        <DashboardCard title="Rejected" value={rejected} />
-      </div>
-      <section className="rounded-[2rem] bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">
-          Department status breakdown
-        </h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {departmentBreakdown.map((item) => (
-            <DashboardCard
-              key={item.department}
-              title={item.department}
-              value={item.pending}
-            >
-              <div className="mt-3 space-y-1 text-xs text-slate-500">
-                <p>
-                  <span className="font-semibold text-emerald-600">
-                    {item.approved}
-                  </span>{" "}
-                  approved
-                </p>
-                <p>
-                  <span className="font-semibold text-amber-600">
-                    {item.pending}
-                  </span>{" "}
-                  pending
-                </p>
-                <p>
-                  <span className="font-semibold text-red-600">
-                    {item.rejected}
-                  </span>{" "}
-                  rejected
-                </p>
-              </div>
-            </DashboardCard>
-          ))}
-        </div>
-      </section>
-      <section className="rounded-[2rem] bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">
-          Latest requests
-        </h2>
-        {requests.length === 0 ? (
-          <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-            No student requests have been submitted yet.
-          </p>
-        ) : (
-          <div className="mt-4 divide-y divide-slate-100">
-            {requests.slice(0, 5).map((request) => (
-              <div
-                key={request._id}
-                className="flex flex-wrap items-center justify-between gap-3 py-4"
-              >
-                <div>
-                  <p className="font-semibold text-slate-900">
-                    {request.student?.name || "Student"}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {request.student?.studentId || "No student ID"} · Submitted{" "}
-                    {new Date(request.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <StatusBadge status={request.overallStatus} />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+    <div className="space-y-7">
+      <header className="flex flex-wrap items-end justify-between gap-5 border-b border-slate-200 pb-6"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Super admin</p><h1 className="mt-2 text-3xl font-semibold text-slate-900">Campus clearance overview</h1><p className="mt-2 text-sm text-slate-600">Monitor request outcomes and office queues across the campus.</p></div><Link to="/admin/requests" className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white">Monitor requests</Link></header>
+      {error && <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {summary && <>
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><DashboardCard title="Total requests" value={summary.total} /><DashboardCard title="Pending" value={summary.pending} /><DashboardCard title="In progress" value={summary.inProgress} /><DashboardCard title="Cleared" value={summary.cleared} /><DashboardCard title="Rejected" value={summary.rejected} /></section>
+        <section className="grid gap-8 border-t border-slate-200 pt-6 lg:grid-cols-[1.2fr_0.8fr]"><div><div className="flex items-end justify-between gap-4"><div><h2 className="text-xl font-semibold text-slate-900">Office workload</h2><p className="mt-1 text-sm text-slate-500">Open approvals grouped by assigned office.</p></div><Link to="/admin/reports" className="text-sm font-semibold text-primary">Reports</Link></div>{summary.officeBacklog.length ? <div className="mt-4 divide-y divide-slate-200 border-y border-slate-200">{summary.officeBacklog.map((office) => <div key={office.officeId} className="flex items-center justify-between gap-4 py-4"><div><p className="font-semibold text-slate-800">{office.name}</p><p className="mt-1 text-xs text-slate-500">{office.code}</p></div><div className="flex items-center gap-3"><div className="h-2 w-32 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-amber-500" style={{ width: `${summary.officeBacklog[0].pending ? Math.max(4, office.pending / summary.officeBacklog[0].pending * 100) : 0}%` }} /></div><span className="min-w-6 text-right font-semibold text-amber-800">{office.pending}</span></div></div>)}</div> : <p className="mt-4 border-y border-slate-200 py-6 text-sm text-slate-500">No pending approvals right now.</p>}</div>
+          <div className="border-t border-slate-200 pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"><h2 className="text-xl font-semibold text-slate-900">System setup</h2><p className="mt-2 text-sm text-slate-500">Configure the offices and staff that process new requests.</p><div className="mt-4 grid gap-2"><Link to="/admin/offices" className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white">Manage approval offices</Link><Link to="/admin/staff" className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white">Create and assign staff</Link><Link to="/admin/reports" className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-white">View date-filtered reports</Link></div></div>
+        </section>
+      </>}
     </div>
   );
 };

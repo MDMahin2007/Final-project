@@ -2,11 +2,12 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { AuthContext } from "../context/authContext.js";
+import { getRoleHome } from "../utils/roles.js";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,8 +16,8 @@ const Login = () => {
     event.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      const message = "Email and password are required.";
+    if (!identifier || !password) {
+      const message = "Student ID or email and password are required.";
       setError(message);
       toast.error(message);
       return;
@@ -24,11 +25,9 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const user = await login(email.trim(), password);
+      const user = await login(identifier.trim(), password);
       toast.success("Welcome back to ClearPath.");
-      navigate(
-        user.role === "admin" ? "/admin/dashboard" : "/student/dashboard",
-      );
+      navigate(getRoleHome(user.role));
     } catch (err) {
       const message =
         err.response?.data?.message ||
@@ -55,19 +54,19 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="identifier"
               className="block text-sm font-medium text-slate-700"
             >
-              Email address
+              Student ID or email
             </label>
             <input
-              id="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              type="email"
+              id="identifier"
+              value={identifier}
+              onChange={(event) => setIdentifier(event.target.value)}
+              type="text"
               required
-              autoComplete="email"
-              placeholder="you@campus.edu"
+              autoComplete="username"
+              placeholder="Student ID or you@campus.edu"
               className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-primary focus:bg-white"
             />
           </div>

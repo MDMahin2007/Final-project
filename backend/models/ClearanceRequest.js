@@ -1,20 +1,12 @@
 import mongoose from 'mongoose'
 
-export const CLEARANCE_DEPARTMENTS = ['Library', 'Hostel', 'Accounts', 'Department']
-
-const clearanceItemSchema = new mongoose.Schema(
-    {
-        department: { type: String, enum: CLEARANCE_DEPARTMENTS, required: true },
-        status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-        remarks: { type: String, trim: true, maxlength: 1000, default: '' },
-        updatedAt: { type: Date, default: Date.now },
-    },
-    { _id: true }
-)
+export const REQUEST_STATUSES = ['PENDING', 'IN_PROGRESS', 'CLEARED', 'REJECTED', 'CANCELLED']
 
 const clearanceRequestSchema = new mongoose.Schema(
     {
-        student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+        studentUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        purpose: { type: String, required: true, trim: true, minlength: 3, maxlength: 200 },
+        overallStatus: { type: String, enum: REQUEST_STATUSES, default: 'PENDING', index: true },
         documents: {
             type: [{
                 name: { type: String, required: true, trim: true },
@@ -23,32 +15,13 @@ const clearanceRequestSchema = new mongoose.Schema(
             }],
             default: [],
         },
-        items: {
-            type: [clearanceItemSchema],
-            required: true,
-            validate: {
-                validator: (items) =>
-                    items.length === CLEARANCE_DEPARTMENTS.length &&
-                    new Set(items.map((item) => item.department)).size === CLEARANCE_DEPARTMENTS.length,
-                message: 'A request must contain one item for every clearance department',
-            },
-        },
-        overallStatus: { type: String, enum: ['pending', 'completed', 'rejected'], default: 'pending' },
+        attachmentUrl: { type: String, trim: true, default: '' },
+        submittedAt: { type: Date, default: Date.now, index: true },
     },
-    { timestamps: true }
+    { timestamps: true, collection: 'clearanceRequests' }
 )
 
-// A request is complete only after every department approves it. A rejection
-// takes priority so students immediately know that action is required.
-clearanceRequestSchema.pre('validate', function calculateOverallStatus() {
-    if (this.items.some((item) => item.status === 'rejected')) {
-        this.overallStatus = 'rejected'
-    } else if (this.items.length && this.items.every((item) => item.status === 'approved')) {
-        this.overallStatus = 'completed'
-    } else {
-        this.overallStatus = 'pending'
-    }
-})
+clearanceRequestSchema.index({ studentUserId: 1, submittedAt: -1 })
 
 const ClearanceRequest = mongoose.model('ClearanceRequest', clearanceRequestSchema)
 

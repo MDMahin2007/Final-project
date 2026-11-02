@@ -9,10 +9,6 @@ const generateToken = (user) => {
     })
 }
 
-const normalizeEmail = (email) => (typeof email === 'string' ? email.trim().toLowerCase() : '')
-
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
 const sendAuthResponse = (res, statusCode, message, user) => {
     res.status(statusCode).json({
         success: true,
@@ -26,10 +22,14 @@ const sendAuthResponse = (res, statusCode, message, user) => {
 
 export const registerUser = async (req, res, next) => {
     try {
-        const { name, studentId, department, email, password } = req.body
+        const { name, studentId, department, email, password, semester } = req.body
 
         if (![name, studentId, department, email, password].every((value) => typeof value === 'string' && value.trim())) {
             return res.status(400).json({ success: false, message: 'Please fill all required fields' })
+        }
+
+        if (!/^[A-Za-z0-9][A-Za-z0-9._/-]{2,29}$/.test(studentId.trim())) {
+            return res.status(400).json({ success: false, message: 'Student ID must be 3-30 letters, numbers, or . _ / - characters' })
         }
 
         if (password.length < 8) {
@@ -54,6 +54,7 @@ export const registerUser = async (req, res, next) => {
             email: normalizedEmail,
             password: hashedPassword,
             role: 'student',
+            semester: typeof semester === 'string' ? semester.trim() : '',
         })
 
         sendAuthResponse(res, 201, 'Registration successful', user)
@@ -62,83 +63,19 @@ export const registerUser = async (req, res, next) => {
     }
 }
 
-export const registerAdmin = async (req, res, next) => {
-    try {
-        const { name, email, password, adminSecretKey } = req.body
-
-        const isAuthorizedAdmin = req.user && req.user.role === 'admin'
-
-        if (![name, email, password].every((value) => typeof value === 'string' && value.trim())) {
-            return res.status(400).json({ success: false, message: 'Please fill all required fields' })
-        }
-
-        if (!isAuthorizedAdmin) {
-            const expectedKey = process.env.ADMIN_SECRET_KEY
-            if (!expectedKey || !expectedKey.trim()) {
-                // Fail closed: if the server isn't configured with a real
-                // secret key, refuse all self-service admin registration
-                // rather than falling back to a guessable default.
-                return res.status(503).json({
-                    success: false,
-                    message: 'Admin registration is not available right now. Contact the system administrator.',
-                })
-            }
-            if (!adminSecretKey || typeof adminSecretKey !== 'string' || !adminSecretKey.trim()) {
-                return res.status(400).json({ success: false, message: 'Admin security key is required' })
-            }
-            if (adminSecretKey.trim() !== expectedKey.trim()) {
-                return res.status(403).json({ success: false, message: 'Invalid admin security key' })
-            }
-        }
-
-        if (name.trim().length < 2) {
-            return res.status(400).json({ success: false, message: 'Name must be at least 2 characters' })
-        }
-
-        if (password.length < 8) {
-            return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' })
-        }
-
-        const normalizedEmail = normalizeEmail(email)
-        if (!isValidEmail(normalizedEmail)) {
-            return res.status(400).json({ success: false, message: 'Please provide a valid email address' })
-        }
-
-        const existingUser = await User.findOne({ email: normalizedEmail })
-        if (existingUser) {
-            return res.status(409).json({ success: false, message: 'Email already registered' })
-        }
-
-        const user = await User.create({
-            name: name.trim(),
-            email: normalizedEmail,
-            password: await bcrypt.hash(password, 10),
-            role: 'admin',
-        })
-
-        if (isAuthorizedAdmin) {
-            return res.status(201).json({
-                success: true,
-                message: 'Admin registration successful',
-                data: { user: user.toJSON() },
-            })
-        }
-
-        sendAuthResponse(res, 201, 'Admin registration successful', user)
-    } catch (error) {
-        next(error)
-    }
-}
-
 export const loginUser = async (req, res, next) => {
     try {
-        const { email, password } = req.body
+        const identifier = req.body?.identifier || req.body?.email || req.body?.studentId
+        const { password } = req.body || {}
 
-        if (!email || !password) {
-            return res.status(400).json({ success: false, message: 'Email and password are required' })
+        if (typeof identifier !== 'string' || typeof password !== 'string' || !identifier.trim() || !password) {
+            return res.status(400).json({ success: false, message: 'Student ID or email and password are required' })
         }
 
-        const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password')
+        const value = identifier.trim()
+        const user = await User.findOne({
+            $or: [{ email: value.toLowerCase() }, { studentId: value }],
+        }).select('+password')
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid credentials' })
         }
@@ -160,7 +97,7 @@ export const getMe = async (req, res) => {
 
 export const updateMe = async (req, res, next) => {
     try {
-        const allowedFields = ['phone', 'program', 'session']
+        const allowedFields = ['phone', 'program', 'session', 'semester']
         const providedFields = allowedFields.filter((field) => req.body?.[field] !== undefined)
 
         if (!providedFields.length) {
