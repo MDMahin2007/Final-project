@@ -29,8 +29,8 @@ const Apply = () => {
 
   const selectFiles = (event) => {
     const selected = Array.from(event.target.files || []);
-    const valid = selected.filter((file) => file.type === "application/pdf" && file.size <= 5 * 1024 * 1024);
-    if (valid.length !== selected.length) toast.error("PDF files up to 5 MB are allowed.");
+    const valid = selected.filter((file) => file.type === "application/pdf" && file.size <= 4 * 1024 * 1024);
+    if (valid.length !== selected.length) toast.error("PDF files up to 4 MB are allowed.");
     if (valid.length > 6) toast.error("Choose no more than six files.");
     setFiles(valid.slice(0, 6));
   };
@@ -47,10 +47,12 @@ const Apply = () => {
       const response = await api.post("/requests", { purpose: purpose.trim() });
       const request = response.data.data;
       if (files.length) {
-        const formData = new FormData();
-        files.forEach((file) => formData.append("documents", file));
         try {
-          await api.post(`/requests/${request._id}/documents`, formData);
+          for (const file of files) {
+            const formData = new FormData();
+            formData.append("documents", file);
+            await api.post(`/requests/${request._id}/documents`, formData);
+          }
         } catch {
           toast.error("Request submitted. Attachments could not be uploaded; add them from the request page.");
           navigate(`/student/requests/${request._id}`);
@@ -94,7 +96,7 @@ const Apply = () => {
         </div>
         <div>
           <div className="flex items-end justify-between gap-3">
-            <div><label className="block text-sm font-semibold text-slate-700">Supporting documents</label><p className="mt-1 text-xs text-slate-500">Optional. PDF only, 5 MB each, up to 6 files.</p></div>
+            <div><label className="block text-sm font-semibold text-slate-700">Supporting documents</label><p className="mt-1 text-xs text-slate-500">Optional. PDF only, 4 MB each, up to 6 files.</p></div>
             <span className="text-xs text-slate-500">{files.length}/6</span>
           </div>
           <input ref={fileInput} type="file" accept="application/pdf,.pdf" multiple onChange={selectFiles} className="sr-only" />

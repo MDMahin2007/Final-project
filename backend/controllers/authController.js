@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
-import { getUploadedFilePath, removeUploadedFile } from '../middleware/uploadMiddleware.js'
+import { removeUploadedFile } from '../middleware/uploadMiddleware.js'
 
 const generateToken = (user) => {
     return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -127,18 +127,19 @@ export const updateAvatar = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'A JPG or PNG profile picture is required' })
         }
 
-        const previousPicture = req.user.profilePicture
-        req.user.profilePicture = `/uploads/avatars/${req.file.filename}`
+        const previousPictureId = req.user.profilePicturePublicId
+        req.user.profilePicture = req.file.path
+        req.user.profilePicturePublicId = req.file.filename
         await req.user.save()
         try {
-            await removeUploadedFile(getUploadedFilePath(previousPicture))
+            await removeUploadedFile(previousPictureId, 'image')
         } catch (cleanupError) {
             console.error('Previous profile picture cleanup failed:', cleanupError.message)
         }
 
         res.json({ success: true, message: 'Profile picture updated successfully', data: { user: req.user.toJSON() } })
     } catch (error) {
-        if (req.file?.path) await removeUploadedFile(req.file.path)
+        if (req.file?.filename) await removeUploadedFile(req.file.filename, req.file.resourceType)
         next(error)
     }
 }

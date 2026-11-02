@@ -1,6 +1,5 @@
 import express from 'express'
 import dotenv from 'dotenv'
-import { fileURLToPath } from 'url'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
@@ -13,14 +12,14 @@ import staffRoutes from './routes/staffRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import reportRoutes from './routes/reportRoutes.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
-import { ensureUploadDirectories, uploadsDirectory } from './middleware/uploadMiddleware.js'
 
-dotenv.config({ path: fileURLToPath(new URL('.env', import.meta.url)) })
+if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    dotenv.config()
+}
 const app = express()
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 app.use(express.json({ limit: '1mb' }))
-app.use('/uploads', express.static(uploadsDirectory))
 app.use('/api', rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 300,
@@ -60,8 +59,11 @@ app.get('/api', (req, res) => {
     res.json({ success: true, message: 'ClearPath API is running' })
 })
 
-// Vercel reuses warm processes, so connect lazily and cache the Mongoose connection.
+// Reuse the cached Mongoose connection across warm serverless function invocations.
 app.use('/api', async (_req, _res, next) => {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+        return _res.status(503).json({ success: false, message: 'Authentication is not configured on this server' })
+    }
     try {
         await connectDB()
         next()
@@ -90,7 +92,6 @@ const startServer = async () => {
     }
 
     await connectDB()
-    await ensureUploadDirectories()
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`)
     })

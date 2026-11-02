@@ -1,6 +1,5 @@
 import dotenv from 'dotenv'
 import bcrypt from 'bcryptjs'
-import { fileURLToPath } from 'url'
 import connectDB from './config/db.js'
 import Approval from './models/Approval.js'
 import AuditLog from './models/AuditLog.js'
@@ -9,7 +8,7 @@ import ClearanceRequest from './models/ClearanceRequest.js'
 import Office from './models/Office.js'
 import { calculateRequestStatus } from './utils/statusCalculator.js'
 
-dotenv.config({ path: fileURLToPath(new URL('.env', import.meta.url)) })
+dotenv.config()
 
 const defaultOffices = [
     { name: 'Library', code: 'LIB', workflowOrder: 1 },

@@ -4,6 +4,7 @@ const functionPrefix = '/.netlify/functions/api'
 let expressHandlerPromise
 
 export const handler = async (event, context) => {
+    if (context) context.callbackWaitsForEmptyEventLoop = false
     if (!expressHandlerPromise) {
         process.env.NETLIFY = 'true'
         expressHandlerPromise = import('../../server.js').then(({ default: app }) => serverless(app))

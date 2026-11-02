@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema(
         program: { type: String, trim: true, maxlength: 120, default: '' },
         session: { type: String, trim: true, maxlength: 30, default: '' },
         profilePicture: { type: String, default: null },
+        profilePicturePublicId: { type: String, default: null },
+        profilePicturePublicId: { type: String, default: null },
         officeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Office', default: null },
         email: {
             type: String,

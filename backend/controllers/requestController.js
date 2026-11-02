@@ -144,29 +144,31 @@ export const uploadRequestDocuments = async (req, res, next) => {
             studentUserId: req.user._id,
         })
         if (!request) {
-            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
+            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.filename, file.resourceType)))
             return res.status(404).json({ success: false, message: 'Request not found' })
         }
         if (['CLEARED', 'CANCELLED'].includes(request.overallStatus)) {
-            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
+            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.filename, file.resourceType)))
             return res.status(400).json({ success: false, message: 'Documents cannot be added to a closed request' })
         }
         if (!req.files?.length) {
             return res.status(400).json({ success: false, message: 'Select at least one PDF document' })
         }
         if (request.documents.length + req.files.length > 6) {
-            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
+            await Promise.all((req.files || []).map((file) => removeUploadedFile(file.filename, file.resourceType)))
             return res.status(400).json({ success: false, message: 'A request can contain up to 6 documents' })
         }
         request.documents.push(...req.files.map((file) => ({
             name: file.originalname,
-            url: `/uploads/documents/${file.filename}`,
+            url: file.path,
+            publicId: file.filename,
+            resourceType: file.resourceType,
             uploadedAt: new Date(),
         })))
         await request.save()
         res.status(201).json({ success: true, message: 'Documents uploaded', data: await requestDetail(request) })
     } catch (error) {
-        await Promise.all((req.files || []).map((file) => removeUploadedFile(file.path)))
+        await Promise.all((req.files || []).map((file) => removeUploadedFile(file.filename, file.resourceType)))
         next(error)
     }
 }

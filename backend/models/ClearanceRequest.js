@@ -11,6 +11,8 @@ const clearanceRequestSchema = new mongoose.Schema(
             type: [{
                 name: { type: String, required: true, trim: true },
                 url: { type: String, required: true, trim: true },
+                publicId: { type: String, default: '' },
+                resourceType: { type: String, enum: ['raw', 'image'], default: 'raw' },
                 uploadedAt: { type: Date, default: Date.now },
             }],
             default: [],

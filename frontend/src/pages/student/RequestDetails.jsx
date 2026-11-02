@@ -51,18 +51,20 @@ const RequestDetails = () => {
     event.target.value = "";
     if (!selected.length) return;
     const existingCount = request.documents?.length || 0;
-    const valid = selected.filter((file) => file.type === "application/pdf" && file.size <= 5 * 1024 * 1024);
-    if (valid.length !== selected.length) toast.error("PDF files up to 5 MB are allowed.");
+    const valid = selected.filter((file) => file.type === "application/pdf" && file.size <= 4 * 1024 * 1024);
+    if (valid.length !== selected.length) toast.error("PDF files up to 4 MB are allowed.");
     if (!valid.length || existingCount + valid.length > 6) {
       if (valid.length && existingCount + valid.length > 6) toast.error("A request can have up to six documents.");
       return;
     }
     try {
       setBusy(true);
-      const formData = new FormData();
-      valid.forEach((file) => formData.append("documents", file));
-      const response = await api.post(`/requests/${id}/documents`, formData);
-      setRequest(response.data.data);
+      for (const file of valid) {
+        const formData = new FormData();
+        formData.append("documents", file);
+        const response = await api.post(`/requests/${id}/documents`, formData);
+        setRequest(response.data.data);
+      }
       toast.success("Documents uploaded.");
     } catch (requestError) {
       toast.error(requestError.response?.data?.message || "Upload failed.");

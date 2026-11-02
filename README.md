@@ -47,6 +47,9 @@ CLIENT_URL=https://smart-campus-clearance.vercel.app
 FRONTEND_URL=http://localhost:5173
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=<private-password-at-least-8-characters>
+CLOUDINARY_CLOUD_NAME=<cloud-name>
+CLOUDINARY_API_KEY=<cloudinary-api-key>
+CLOUDINARY_API_SECRET=<cloudinary-api-secret>
 ```
 
 If the MongoDB URI has no database name in its path, `DATABASE_NAME` is added automatically. If the URI already names a database, that explicit path is preserved. `MONGO_URI` remains accepted as a compatibility alias. For local MongoDB, set `MONGODB_URI=mongodb://127.0.0.1:27017/clearpath_campus_clearance`. Never commit `.env` or paste database credentials into source code.
@@ -57,7 +60,7 @@ Frontend `frontend/.env`:
 VITE_API_URL=/api
 ```
 
-Vite proxies `/api` and `/uploads` to `http://localhost:5000` in development. In production, the frontend is `https://smart-campus-clearance.vercel.app` and the backend API is `https://smart-campus-clearance.netlify.app/api`. Vercel's frontend project must have `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`; the Netlify backend project must have `CLIENT_URL=https://smart-campus-clearance.vercel.app`. These deployment URLs must not be swapped.
+Vite proxies `/api` to `http://localhost:5000` in development. Uploaded media uses absolute Cloudinary URLs. In production, the frontend is `https://smart-campus-clearance.vercel.app` and the backend API is `https://smart-campus-clearance.netlify.app/api`. Vercel's frontend project must have `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`; the Netlify backend project must have `CLIENT_URL=https://smart-campus-clearance.vercel.app`. These deployment URLs must not be swapped.
 
 ## Install And Run
 
@@ -140,6 +143,6 @@ Backend tests cover request status calculation, sequential approval readiness, a
 
 ## Deployment Notes
 
-Deploy `frontend/` to Vercel with build command `npm run build`, output directory `dist`, and environment variable `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`. Deploy `backend/` as a separate Netlify site with base directory `backend`; `backend/netlify.toml` configures the Functions directory, API rewrites, and Node 22 runtime. In Netlify site settings, configure `MONGODB_URI`, `DATABASE_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `CLIENT_URL=https://smart-campus-clearance.vercel.app`. `backend/.env` is local-only and is not uploaded automatically. `FRONTEND_URL=http://localhost:5173` can remain for local development.
+Deploy `frontend/` to Vercel with build command `npm run build`, output directory `dist`, and environment variable `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`. Deploy `backend/` as a separate Netlify site with **base directory** `backend`, **build command** `npm install`, **publish directory** `public`, and **functions directory** `netlify/functions`; `backend/netlify.toml` sets these and Node 22. In Netlify site settings, configure `MONGODB_URI`, `DATABASE_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CLIENT_URL=https://smart-campus-clearance.vercel.app`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Set Cloudinary credentials only in Netlify environment settings and local `backend/.env`; never add real values to `.env.example` or commit `.env`. `FRONTEND_URL=http://localhost:5173` can remain for local development.
 
-Verify the backend at `https://smart-campus-clearance.netlify.app/api/health`. Uploaded PDFs and avatars currently use local disk under `backend/uploads/`; Netlify Functions have ephemeral storage, so production uploads require persistent object storage. The existing `backend/vercel.json` is only for an alternate Vercel backend deployment and is not used by Netlify. Keep MongoDB network access restricted and rotate any credential that has been exposed.
+Verify the backend at `https://smart-campus-clearance.netlify.app/api/health`. Uploaded PDFs and avatars are streamed to Cloudinary; the Netlify Function does not write uploads to its temporary filesystem. PDF uploads are sent one at a time and limited to 4 MB each to stay within Netlify's function payload budget; up to six documents may be attached to a request. The existing `backend/vercel.json` is only for an alternate Vercel backend deployment and is not used by Netlify. Keep MongoDB network access restricted and rotate any credential that has been exposed.
