@@ -18,6 +18,8 @@ if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
 }
 const app = express()
 
+app.set('trust proxy', true) // Trust the first proxy in front of the server (e.g., Vercel, Netlify, or AWS Lambda)
+
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 const allowedOrigins = [
     process.env.CLIENT_URL,
