@@ -1,20 +1,55 @@
 # Dependencies and generated output
 **/node_modules/
 **/dist/
+**/dist-ssr/
 **/build/
+**/coverage/
+**/.cache/
+**/tmp/
 
 # Local configuration and secrets
 **/.env*
 !**/.env.example
+!**/.env.*.example
+**/.npmrc
+**/.netrc
+**/credentials.json
+**/credentials.*.json
+**/secrets.json
+**/secrets.*.json
+**/*service-account*.json
+**/*serviceaccount*.json
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.jks
+**/*.keystore
 
 # Logs and local tooling
 **/*.log
 .vscode/
 .idea/
+**/.DS_Store
+**/Thumbs.db
+**/*.local
 
 # Local deployment tooling state
 .netlify/
 .vercel/
+**/.netlify/
+**/.vercel/
 
-# Ignore uploaded files
-backend/uploads/
+# User uploads and local data/backups
+**/uploads/
+**/user-uploads/
+**/private-uploads/
+**/backups/
+**/backup/
+**/dumps/
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+**/*.dump
+**/*.bak
+**/*.backup
