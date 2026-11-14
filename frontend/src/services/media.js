@@ -1,4 +1,4 @@
-const apiBaseUrl = import.meta.env.VITE_API_URL || "/api";
+import { apiBaseUrl } from "./apiBaseUrl";
 
 export const getMediaUrl = (relativeUrl) => {
   if (!relativeUrl) return "";
