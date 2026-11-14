@@ -80,7 +80,11 @@ npm --prefix backend run seed
 To explicitly reset the configured super-admin's password to the `ADMIN_PASSWORD` in `backend/.env`, run:
 
 ```powershell
+# From the repository root:
 npm --prefix backend run seed:admin-password
+
+# If the current directory is already backend/:
+npm run seed:admin-password
 ```
 
 This command updates only the configured admin account's password and role; it does not reset users, requests, or offices. Use it only after confirming `MONGODB_URI` points to the intended database. In production, set a new strong `ADMIN_PASSWORD` in the Render environment and run the command in a trusted environment connected to that production database, or use the provider's secure shell/job workflow. Normal `seed` runs do not change an existing admin password.
