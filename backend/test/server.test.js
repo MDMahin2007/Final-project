@@ -30,7 +30,7 @@ test('CORS preflight allows the deployed Vercel frontend', async () => {
         path: '/api/auth/login',
         headers: {
             host: 'localhost',
-            Origin: 'https://smart-campus-clearance.vercel.app',
+            Origin: 'https://frontend-psi-gold-71.vercel.app',
             'access-control-request-method': 'POST',
             'access-control-request-headers': 'authorization,content-type',
         },
@@ -39,6 +39,6 @@ test('CORS preflight allows the deployed Vercel frontend', async () => {
     }, {})
 
     assert.equal(response.statusCode, 204)
-    assert.equal(response.headers['access-control-allow-origin'], 'https://smart-campus-clearance.vercel.app')
+    assert.equal(response.headers['access-control-allow-origin'], 'https://frontend-psi-gold-71.vercel.app')
     assert.match(response.headers['access-control-allow-methods'], /POST/)
 })

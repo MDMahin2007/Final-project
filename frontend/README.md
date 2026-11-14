@@ -14,7 +14,7 @@ For local backend development, set `VITE_API_URL=/api`; the Vite proxy forwards 
 
 ## Production
 
-The frontend is deployed at `https://smart-campus-clearance.vercel.app`; its backend API is `https://final-project-733w.onrender.com/api`. Set `VITE_API_URL` to the backend API URL in the Vercel project's environment variables and redeploy after changing it. The backend's Render service must allow the frontend origin with `CLIENT_URL=https://smart-campus-clearance.vercel.app`.
+The frontend is deployed at `https://frontend-psi-gold-71.vercel.app`; its backend API is `https://final-project-733w.onrender.com/api`. Set `VITE_API_URL` to the backend API URL in the Vercel project's environment variables and redeploy after changing it. The backend's Render service must allow the frontend origin with `CLIENT_URL=https://frontend-psi-gold-71.vercel.app`. The previous `https://smart-campus-clearance.vercel.app` frontend origin remains allowed.
 
 The frontend redirects the former `https://smart-campus-clearance.netlify.app` API setting to the Render API, but the Vercel production environment variable should still be updated to the Render URL.
 

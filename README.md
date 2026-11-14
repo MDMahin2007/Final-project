@@ -43,7 +43,7 @@ MONGODB_URI=mongodb+srv://<db_user>:<db_password>@<cluster-host>/
 DATABASE_NAME=clearpath_campus_clearance
 JWT_SECRET=<random-secret-at-least-32-characters>
 JWT_EXPIRES_IN=1d
-CLIENT_URL=https://smart-campus-clearance.vercel.app
+CLIENT_URL=https://frontend-psi-gold-71.vercel.app,https://smart-campus-clearance.vercel.app
 FRONTEND_URL=http://localhost:5173
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=<private-password-at-least-8-characters>
@@ -60,7 +60,7 @@ Frontend `frontend/.env`:
 VITE_API_URL=https://final-project-733w.onrender.com/api
 ```
 
-For local development with the local backend, set `VITE_API_URL=/api`; Vite proxies `/api` to `http://localhost:5000`. Uploaded media uses absolute Cloudinary URLs. In production, the frontend is `https://smart-campus-clearance.vercel.app` and the backend API is `https://final-project-733w.onrender.com/api`. Set the Vercel frontend project's `VITE_API_URL` to that backend API URL and the Render backend's `CLIENT_URL` to `https://smart-campus-clearance.vercel.app`.
+For local development with the local backend, set `VITE_API_URL=/api`; Vite proxies `/api` to `http://localhost:5000`. Uploaded media uses absolute Cloudinary URLs. The production frontend is `https://frontend-psi-gold-71.vercel.app` (the previous `https://smart-campus-clearance.vercel.app` domain is also allowed), and the backend API is `https://final-project-733w.onrender.com/api`. Set the Vercel frontend project's `VITE_API_URL` to that backend API URL and the Render backend's `CLIENT_URL` to both frontend origins, separated by a comma.
 
 ## Install And Run
 
@@ -145,6 +145,6 @@ Backend tests cover request status calculation, sequential approval readiness, a
 
 Deploy `frontend/` to Vercel with build command `npm run build`, output directory `dist`, and `VITE_API_URL=https://final-project-733w.onrender.com/api`. After changing this variable in Vercel, redeploy the frontend so the new API URL is included in its build.
 
-Deploy `backend/` to Render as a Web Service with **Root Directory** `backend`, **Build Command** `npm install`, and **Start Command** `npm start`. Configure `MONGODB_URI`, `DATABASE_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CLIENT_URL=https://smart-campus-clearance.vercel.app`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the Render service's environment. Render supplies the listening `PORT`. `FRONTEND_URL=http://localhost:5173` is optional for local development. Keep credentials only in deployment environment settings and local `.env` files; never commit `.env` or put real credentials in `.env.example`.
+Deploy `backend/` to Render as a Web Service with **Root Directory** `backend`, **Build Command** `npm install`, and **Start Command** `npm start`. Configure `MONGODB_URI`, `DATABASE_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CLIENT_URL=https://frontend-psi-gold-71.vercel.app,https://smart-campus-clearance.vercel.app`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the Render service's environment. Render supplies the listening `PORT`. `FRONTEND_URL=http://localhost:5173` is optional for local development. Keep credentials only in deployment environment settings and local `.env` files; never commit `.env` or put real credentials in `.env.example`.
 
 Verify the backend at `https://final-project-733w.onrender.com/api/health`. Uploaded PDFs and avatars are streamed to Cloudinary rather than stored on the backend's local disk. The existing `backend/vercel.json` is for an alternate Vercel backend deployment and is not used by Render. Keep MongoDB network access restricted and rotate any credential that has been exposed.

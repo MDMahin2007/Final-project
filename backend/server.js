@@ -25,6 +25,7 @@ const allowedOrigins = [
     process.env.CLIENT_URL,
     process.env.FRONTEND_URL,
     'https://smart-campus-clearance.vercel.app',
+    'https://frontend-psi-gold-71.vercel.app',
 ]
     .filter(Boolean)
     .flatMap((value) => value.split(',').map((origin) => origin.trim()))
