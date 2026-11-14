@@ -1,0 +1,20 @@
+# Dependencies and generated output
+**/node_modules/
+**/dist/
+**/build/
+
+# Local configuration and secrets
+**/.env*
+!**/.env.example
+
+# Logs and local tooling
+**/*.log
+.vscode/
+.idea/
+
+# Local deployment tooling state
+.netlify/
+.vercel/
+
+# Ignore uploaded files
+backend/uploads/
