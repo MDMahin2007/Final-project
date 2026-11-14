@@ -124,10 +124,11 @@ const seed = async () => {
 
         const email = process.env.ADMIN_EMAIL?.trim().toLowerCase()
         const password = process.env.ADMIN_PASSWORD
-        if (!email || !password || password.length < 8) {
-            throw new Error('ADMIN_EMAIL and an ADMIN_PASSWORD of at least 8 characters are required')
+        if (!email || !password || password.length < 12) {
+            throw new Error('ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters are required')
         }
         const existingAdmin = await User.findOne({ email })
+        const resetAdminPassword = process.argv.includes('--reset-admin-password')
 
         if (!existingAdmin) {
             await User.create({
@@ -141,11 +142,19 @@ const seed = async () => {
             if (!['admin', 'superAdmin'].includes(existingAdmin.role)) {
                 throw new Error('ADMIN_EMAIL already belongs to a non-admin account; choose a different email')
             }
+            let adminChanged = false
             if (existingAdmin.role !== 'superAdmin') {
                 existingAdmin.role = 'superAdmin'
+                adminChanged = true
+            }
+            if (resetAdminPassword) {
+                existingAdmin.password = await bcrypt.hash(password, 10)
+                adminChanged = true
+            }
+            if (adminChanged) {
                 await existingAdmin.save()
             }
-            console.log('Super admin account already exists.')
+            console.log(resetAdminPassword ? 'Super admin account and password updated.' : 'Super admin account already exists.')
         }
 
         for (const office of defaultOffices) {

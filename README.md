@@ -46,7 +46,7 @@ JWT_EXPIRES_IN=1d
 CLIENT_URL=https://frontend-psi-gold-71.vercel.app,https://smart-campus-clearance.vercel.app
 FRONTEND_URL=http://localhost:5173
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=<private-password-at-least-8-characters>
+ADMIN_PASSWORD=<unique-private-password-at-least-12-characters>
 CLOUDINARY_CLOUD_NAME=<cloud-name>
 CLOUDINARY_API_KEY=<cloudinary-api-key>
 CLOUDINARY_API_SECRET=<cloudinary-api-secret>
@@ -76,6 +76,16 @@ Seed the initial super-admin and default offices. This is safe to rerun and does
 ```powershell
 npm --prefix backend run seed
 ```
+
+To explicitly reset the configured super-admin's password to the `ADMIN_PASSWORD` in `backend/.env`, run:
+
+```powershell
+npm --prefix backend run seed:admin-password
+```
+
+This command updates only the configured admin account's password and role; it does not reset users, requests, or offices. Use it only after confirming `MONGODB_URI` points to the intended database. In production, set a new strong `ADMIN_PASSWORD` in the Render environment and run the command in a trusted environment connected to that production database, or use the provider's secure shell/job workflow. Normal `seed` runs do not change an existing admin password.
+
+Admins and office staff sign in at `/login` using their account email and password. Students may use their student ID or email.
 
 Start the backend and frontend in separate terminals:
 

@@ -57,7 +57,7 @@ const Login = () => {
               htmlFor="identifier"
               className="block text-sm font-medium text-slate-700"
             >
-              Student ID or email
+              Email or student ID
             </label>
             <input
               id="identifier"
@@ -66,9 +66,12 @@ const Login = () => {
               type="text"
               required
               autoComplete="username"
-              placeholder="Student ID or you@campus.edu"
+              placeholder="you@campus.edu or student ID"
               className="mt-2 w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-primary focus:bg-white"
             />
+            <p className="mt-2 text-xs text-slate-500">
+              Admins and office staff should sign in with their account email.
+            </p>
           </div>
           <div>
             <label

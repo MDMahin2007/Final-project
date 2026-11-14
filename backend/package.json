@@ -11,6 +11,7 @@
     "dev": "node --watch server.js",
     "start": "node server.js",
     "seed": "node seed.js",
+    "seed:admin-password": "node seed.js --reset-admin-password",
     "seed:demo": "node seed.js --demo",
     "seed:reset": "node seed.js --reset",
     "test": "node --test"

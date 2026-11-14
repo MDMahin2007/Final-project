@@ -20,6 +20,8 @@ The frontend redirects the former `https://smart-campus-clearance.netlify.app` A
 
 The local `frontend/.env` and `backend/.env` files are not uploaded automatically. Configure database, JWT, admin, and Cloudinary credentials in the Render service environment. PDF files and profile images are stored in Cloudinary, not on the backend's local disk.
 
+Admins and office staff use their account email and password on the shared `/login` page. To explicitly reset the configured super-admin password, set a new `ADMIN_PASSWORD` in `backend/.env` (or the trusted production environment) and run `npm --prefix backend run seed:admin-password` against the intended database.
+
 ## Scripts
 
 - `npm run dev` — start the Vite development server
