@@ -57,10 +57,10 @@ If the MongoDB URI has no database name in its path, `DATABASE_NAME` is added au
 Frontend `frontend/.env`:
 
 ```env
-VITE_API_URL=/api
+VITE_API_URL=https://final-project-733w.onrender.com/api
 ```
 
-Vite proxies `/api` to `http://localhost:5000` in development. Uploaded media uses absolute Cloudinary URLs. In production, the frontend is `https://smart-campus-clearance.vercel.app` and the backend API is `https://smart-campus-clearance.netlify.app/api`. Vercel's frontend project must have `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`; the Netlify backend project must have `CLIENT_URL=https://smart-campus-clearance.vercel.app`. These deployment URLs must not be swapped.
+For local development with the local backend, set `VITE_API_URL=/api`; Vite proxies `/api` to `http://localhost:5000`. Uploaded media uses absolute Cloudinary URLs. In production, the frontend is `https://smart-campus-clearance.vercel.app` and the backend API is `https://final-project-733w.onrender.com/api`. Set the Vercel frontend project's `VITE_API_URL` to that backend API URL and the Render backend's `CLIENT_URL` to `https://smart-campus-clearance.vercel.app`.
 
 ## Install And Run
 
@@ -143,8 +143,8 @@ Backend tests cover request status calculation, sequential approval readiness, a
 
 ## Deployment Notes
 
-Deploy `frontend/` to Vercel with build command `npm run build`, output directory `dist`, and environment variable `VITE_API_URL=https://smart-campus-clearance.netlify.app/api`. Deploy `backend/` as a separate Netlify site with **base directory** `backend`, **build command** `npm install`, **publish directory** `public`, and **functions directory** `netlify/functions`; `backend/netlify.toml` sets these and Node 22. In Netlify site settings, configure `MONGODB_URI`, `DATABASE_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CLIENT_URL=https://smart-campus-clearance.vercel.app`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Set Cloudinary credentials only in Netlify environment settings and local `backend/.env`; never add real values to `.env.example` or commit `.env`. `FRONTEND_URL=http://localhost:5173` can remain for local development.
+Deploy `frontend/` to Vercel with build command `npm run build`, output directory `dist`, and `VITE_API_URL=https://final-project-733w.onrender.com/api`. After changing this variable in Vercel, redeploy the frontend so the new API URL is included in its build.
 
-Verify the backend at `https://smart-campus-clearance.netlify.app/api/health`. Uploaded PDFs and avatars are streamed to Cloudinary; the Netlify Function does not write uploads to its temporary filesystem. PDF uploads are sent one at a time and limited to 4 MB each to stay within Netlify's function payload budget; up to six documents may be attached to a request. The existing `backend/vercel.json` is only for an alternate Vercel backend deployment and is not used by Netlify. Keep MongoDB network access restricted and rotate any credential that has been exposed.
+Deploy `backend/` to Render as a Web Service with **Root Directory** `backend`, **Build Command** `npm install`, and **Start Command** `npm start`. Configure `MONGODB_URI`, `DATABASE_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CLIENT_URL=https://smart-campus-clearance.vercel.app`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the Render service's environment. Render supplies the listening `PORT`. `FRONTEND_URL=http://localhost:5173` is optional for local development. Keep credentials only in deployment environment settings and local `.env` files; never commit `.env` or put real credentials in `.env.example`.
 
-For Netlify's `X-Forwarded-For` header, `backend/netlify/functions/api.js` uses `x-nf-client-connection-ip` as the request's remote address and removes the forwarded chain before it reaches Express Rate Limit. Do not set `app.set('trust proxy', 1)` globally for this adapter; the Netlify-specific client IP is already supplied and trusting an arbitrary forwarded hop can enable IP spoofing.
+Verify the backend at `https://final-project-733w.onrender.com/api/health`. Uploaded PDFs and avatars are streamed to Cloudinary rather than stored on the backend's local disk. The existing `backend/vercel.json` is for an alternate Vercel backend deployment and is not used by Render. Keep MongoDB network access restricted and rotate any credential that has been exposed.
